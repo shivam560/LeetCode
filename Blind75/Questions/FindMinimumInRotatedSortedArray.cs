@@ -19,9 +19,7 @@ public class FindMinimumInRotatedSortedArray
         while (lo <= hi)
         {
             var mid = (lo + hi) / 2;
-            if (array[lo] <=
-                array
-                    [mid]) //this means minimum is in right half. This condition tells us the left half is the sorted subarray hence we are always take the lo from left half and discrad the remaining elements because we know fisrt would be the minimum
+            if (array[lo] <= array[mid]) //this means minimum is in right half. This condition tells us the left half is the sorted subarray hence we are always take the lo from left half and discrad the remaining elements because we know fisrt would be the minimum
             {
                 min = Math.Min(min, array[lo]);
                 lo = mid + 1; // we have moved our lo to the right half because we have already taken the min from the lft which was in array[lo] hence we dont need the rest of elements 

@@ -21,7 +21,7 @@ public class FindSquareRoot
         int res = 0;
         while (l <= r)
         {
-            int mid = l + (r - l) / 2;
+            int mid = l + (r - l) / 2;  
             if (Math.Pow(mid, 2) > n)
             {
                 r = mid - 1;
@@ -29,7 +29,7 @@ public class FindSquareRoot
             else if (Math.Pow(mid, 2) < n)
             {
                 l = mid + 1;
-                res = mid;
+                res = mid; // we want to store the highest mid value which is smaller than x. It will be our answer.
             }
             else
             {
