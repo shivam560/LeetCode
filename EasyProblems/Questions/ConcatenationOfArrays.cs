@@ -17,12 +17,9 @@ public class ConcatenationOfArrays
     {
         int l = nums.Length;
         var result = new int[l*2];
-        for (int k = 0; k < 2; k++)
-        {
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = nums[i % nums.Length];
-            }
+        for(int i = 0; i < l; i++){
+            result[i] = nums[i];
+            result[i + l] = nums[i];
         }
 
         return result;
