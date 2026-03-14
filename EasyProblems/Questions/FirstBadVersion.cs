@@ -18,7 +18,7 @@ public class FirstBadVersion
 
         while (left < right)
         {
-            int mid = (left + right) / 2;
+            int mid = left + (right - left) / 2;
 
             if (IsBadVersion(mid)) right = mid;
             else left = mid + 1;
