@@ -144,8 +144,43 @@ heap.Count;                        // size
 - Array is sorted but rotated at some pivot
 - Key insight: at any mid, **one half is always sorted**
 - Check which half is sorted: `nums[left] <= nums[mid]` → left half sorted
-- Check if target falls within the sorted half's range, search accordingly
+- Check if target falls within the sorted half's **range** (both bounds!) — not just one side
 - O(log n) time, O(1) space
+
+**Why both bounds matter:**
+```
+nums = [4, 5, 6, 7, 0, 1, 2], target = 5
+
+left=0, right=6, mid=3 → nums[mid]=7
+nums[left]=4 <= nums[mid]=7 → left half [4,5,6,7] is sorted
+
+Is target in left half? Check BOTH bounds:
+  target >= nums[left]  →  5 >= 4  ✓
+  target < nums[mid]    →  5 < 7   ✓
+  Both true → search left half: right = mid - 1
+```
+
+```
+nums = [4, 5, 6, 7, 0, 1, 2], target = 1
+
+left=0, right=6, mid=3 → nums[mid]=7
+nums[left]=4 <= nums[mid]=7 → left half [4,5,6,7] is sorted
+
+Is target in left half?
+  target >= nums[left]  →  1 >= 4  ✗
+  Fails first check → target is NOT in left half → search right: left = mid + 1
+```
+
+**The four conditions:**
+```
+If left half sorted (nums[left] <= nums[mid]):
+  target >= nums[left] && target < nums[mid]  → search left (right = mid - 1)
+  otherwise                                    → search right (left = mid + 1)
+
+If right half sorted:
+  target > nums[mid] && target <= nums[right]  → search right (left = mid + 1)
+  otherwise                                    → search left (right = mid - 1)
+```
 
 ---
 
