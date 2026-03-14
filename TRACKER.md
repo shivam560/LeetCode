@@ -43,7 +43,7 @@ A pattern is "done" only when you can:
 | 3   | Intervals + Heap     | 🟡         | Meeting Rooms II                          | 3      |
 | 4   | Two Pointers         | 🟡         | Valid Palindrome, Container With Most Water, 3Sum | 4      |
 | 5   | Fast & Slow Pointers | 🔴         | —                                         | 3      |
-| 6   | Binary Search        | 🔴         | —                                         | 4      |
+| 6   | Binary Search        | 🟡         | Binary Search, First Bad Version, Search in Rotated Sorted Array | 4      |
 | 7   | Prefix Sum           | 🔴         | —                                         | 3      |
 | 8   | DFS / BFS            | 🔴         | —                                         | 5      |
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
@@ -67,6 +67,9 @@ A pattern is "done" only when you can:
 | 4   | Valid Palindrome                          | Two Pointers     | Easy       | 🟢         | 2026-03-14 | Solved independently                         |
 | 5   | Container With Most Water                 | Two Pointers     | Medium     | 🟢         | 2026-03-14 | Solved with minor guidance                   |
 | 6   | 3Sum                                      | Two Pointers     | Medium     | 🟡         | 2026-03-14 | Logic correct, needed help with duplicate skip |
+| 7   | Binary Search                             | Binary Search    | Easy       | 🟢         | 2026-03-14 | Solved with minor guidance                     |
+| 8   | First Bad Version                         | Binary Search    | Easy       | 🟢         | 2026-03-14 | Boundary template understood                   |
+| 9   | Search in Rotated Sorted Array            | Binary Search    | Medium     | 🟡         | 2026-03-14 | Needed guidance on both-bounds check           |
 
 
 ---

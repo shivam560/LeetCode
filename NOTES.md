@@ -110,6 +110,45 @@ heap.Count;                        // size
 
 ---
 
+## Pattern 5: Binary Search
+
+**Core idea:** Halve the search space each step → O(log n). Works anytime you can answer a yes/no question that splits the space in half.
+**When to use:** Sorted arrays, boundary finding, rotated arrays, search space problems.
+
+### Complexity Rule
+- Halving + O(1) per step → **O(log n)**
+- Halving + O(n) per step → **O(n log n)**
+
+### Two Templates
+
+| | Classic Search | Boundary Search |
+|---|---|---|
+| Goal | Find exact target | Find first/last that satisfies condition |
+| When found | Return immediately | Keep searching — `right = mid` |
+| Loop condition | `left <= right` | `left < right` |
+| Pointer move | `left = mid + 1`, `right = mid - 1` | `left = mid + 1`, `right = mid` |
+| Return | `mid` or `-1` | `left` |
+
+### Classic Binary Search (LeetCode 704)
+- Sorted array, find target index
+- `left <= right`, return `mid` when found
+- O(log n) time, O(1) space
+
+### First Bad Version (LeetCode 278)
+- Boundary search — find where false flips to true
+- `right = mid` (not `mid - 1`) because mid might be the answer
+- `left < right` (not `<=`) to avoid infinite loop
+- O(log n) time, O(1) space
+
+### Search in Rotated Sorted Array (LeetCode 33)
+- Array is sorted but rotated at some pivot
+- Key insight: at any mid, **one half is always sorted**
+- Check which half is sorted: `nums[left] <= nums[mid]` → left half sorted
+- Check if target falls within the sorted half's range, search accordingly
+- O(log n) time, O(1) space
+
+---
+
 ## Array of Arrays — int[][]
 
 ```csharp
