@@ -70,6 +70,7 @@ A pattern is "done" only when you can:
 | 7   | Binary Search                             | Binary Search    | Easy       | 🟢         | 2026-03-14 | Solved with minor guidance                     |
 | 8   | First Bad Version                         | Binary Search    | Easy       | 🟢         | 2026-03-14 | Boundary template understood                   |
 | 9   | Search in Rotated Sorted Array            | Binary Search    | Medium     | 🟡         | 2026-03-14 | Needed guidance on both-bounds check           |
+| 10  | Max Sum Subarray of Size K                | Sliding Window   | Easy       | 🟢         | 2026-03-17 | Solved independently — fixed window            |
 
 
 ---

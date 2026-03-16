@@ -38,6 +38,12 @@
 **When to use:** "longest/shortest subarray or substring" + a condition that must hold across the window.
 **Fixed vs Variable:** Fixed = window size stays same (e.g., max sum of size K). Variable = window grows/shrinks based on condition.
 
+### Max Sum Subarray of Size K
+- Fixed window — compute sum of first k elements, then slide
+- Slide: `sum = sum - nums[i - k] + nums[i]` (subtract leaving, add entering)
+- Key thinking: "What can I reuse from the previous step?" → don't recalculate, just update
+- O(n) time, O(1) space
+
 ---
 
 ## Pattern 3: Intervals + Min-Heap
