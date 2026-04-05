@@ -44,12 +44,113 @@
 - Key thinking: "What can I reuse from the previous step?" → don't recalculate, just update
 - O(n) time, O(1) space
 
+### Minimum Window Substring (LeetCode 76) — HARD
+
+**The problem:** Given strings `s` and `t`, find the smallest substring of `s` that contains ALL characters of `t`.
+Example: `s = "ADOBECODEBANC"`, `t = "ABC"` → `"BANC"`
+
+**Why is it harder than Longest Substring?**
+In Longest Substring you just tracked duplicates. Here your window needs to contain specific characters with specific frequencies.
+
+**The setup — two dictionaries:**
+- `need` = what `t` requires. For `t = "ABC"` → `{A:1, B:1, C:1}`
+- `window` = what your current window has. Updated as you expand/shrink.
+
+**The trick — a `matched` counter:**
+Comparing two whole dictionaries every step is slow. Instead, keep one number: `matched`.
+- When `window[char]` reaches `need[char]` for a character → `matched++`
+- When `matched == need.Count` → your window has everything. It's valid!
+- This way you check one number instead of comparing entire dictionaries.
+
+**The two phases:**
+1. **Expand** — move `right` forward, add char to `window`, check if it completes a match
+2. **Shrink** — once valid, keep moving `left` forward to find the smallest valid window
+
+**Why a `while` loop for shrinking (not just `if`)?**
+Your first valid window might have junk on the left. `"ADOBEC"` is valid but `"BANC"` is smaller. The while loop keeps removing from the left until the window breaks. Every time it's still valid, you check if it's the new smallest.
+
+**Shrink logic — order matters:**
+1. Record the answer if this window is smaller than the best so far
+2. Decrease `window[s[left]]` by 1 (don't remove the key — char might appear multiple times)
+3. Check if that broke a match: `window[s[left]] < need[s[left]]` → `matched--`
+4. Move `left++`
+
+**Why `<` not `==` for breaking a match?**
+After decrementing, if `window[char] == need[char]`, the match still holds. It only breaks when it drops BELOW what's needed.
+
+**Why track `minStart` and `minLen` (not just length)?**
+At the end you need to return the actual substring: `s.Substring(minStart, minLen)`. If you only tracked length, you'd know the answer is 4 chars but not WHICH 4.
+
+**How to think your way to this solution (don't memorise, follow these questions):**
+1. "Find smallest substring" → sliding window
+2. What's the brute force? → check every substring O(n²) — too slow
+3. What am I recomputing? → almost the same window each step, just update the diff
+4. How to track validity cheaply? → two dictionaries + one counter
+5. Expand → validate → shrink → record best
+
+**Complexity:** O(n) time — each char visited at most twice (once by right, once by left). O(n) space — two dictionaries.
+
+### Sliding Window Maximum (LeetCode 239) — HARD
+
+**The problem:** Given an array and integer `k`, return the max of every window of size `k`.
+Example: `nums = [1,3,-1,-3,5,3,6,7]`, `k = 3` → `[3,3,5,5,6,7]`
+
+**Why can't you just track the max?**
+When the current max **leaves** the window, you don't know the next max without rescanning the whole window. Tracking one max isn't enough — you need the second biggest, third biggest, etc.
+
+**Why not a heap?**
+A heap gives you the max in O(1), BUT you can't remove a specific element from the middle efficiently. When an element leaves the window, you're stuck.
+
+**The answer: Monotonic Decreasing Deque**
+A deque (double-ended queue) where elements go from biggest at the front to smallest at the back. Always decreasing, never increasing — that's why it's called "monotonic."
+
+**What is a Deque?**
+Like a queue but you can add/remove from BOTH ends in O(1).
+```
+FRONT [5, 3, 1] BACK
+ ↑                 ↑
+ biggest           smallest
+ (the max)         (new elements enter here)
+```
+
+**C# Deque = `LinkedList<T>`:**
+```
+d.AddLast(value)     — add to back
+d.RemoveLast()       — remove from back
+d.AddFirst(value)    — add to front
+d.RemoveFirst()      — remove from front
+d.First.Value        — peek front
+d.Last.Value         — peek back
+d.Count              — size
+```
+
+**We store INDICES in the deque, not values.** Why? Because we need indices to check if an element is still inside the window.
+
+**The four steps inside the loop:**
+
+1. **Remove useless elements from back.** If the new element is bigger than the back, the back will never be the max — kick it out. Keep kicking until the back is bigger or deque is empty.
+   `while (d.Count > 0 && nums[d.Last.Value] < nums[right]) → RemoveLast()`
+
+2. **Add new element to back.**
+   `d.AddLast(right)`
+
+3. **Remove expired element from front.** If the front index is outside the window, remove it.
+   `if (d.First.Value <= right - k) → RemoveFirst()`
+   Why `right - k`? If `right = 4` and `k = 3`, window is `[2,3,4]`. Oldest valid index is `right - k + 1 = 2`. So anything at index `1` or less is expired. `<= right - k` catches exactly that.
+
+4. **Record the answer.** Once the window is full (`right >= k - 1`), the front of the deque is the max.
+   `result[right - k + 1] = nums[d.First.Value]`
+
+**Key insight to remember:** "If I'm bigger than you AND I arrived after you — you'll never be the answer. Get out." That's the whole algorithm.
+
+**Complexity:** O(n) time — each element enters and leaves the deque at most once. O(k) space — deque holds at most k elements.
+
 ---
 
 ## Pattern 3: Intervals + Min-Heap
 
 **Problem:** Meeting Rooms II
-**Core trick:** Sort by start time. Min-heap tracks end times of active rooms. If `heap.Peek() <= current.start` → reuse room (Dequeue). Always Enqueue current end time. Heap size = rooms needed.
+**Core trick:** Sort by start time — you can't assign rooms if meetings arrive out of order. Think of it like a queue: first to arrive gets handled first. Min-heap tracks when each room becomes free. If the earliest free room is free before this meeting starts → reuse it (Dequeue). Otherwise → open a new room. Heap size at the end = total rooms needed.
 **Overlap condition:** Two intervals overlap if `A.end > B.start AND B.end > A.start`
 **Complexity:** O(n log n) time, O(n) space
 **When to use:** Interval scheduling, resource allocation, "minimum number of X needed" problems.
