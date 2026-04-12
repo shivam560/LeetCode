@@ -147,6 +147,70 @@ d.Count              — size
 
 ---
 
+## Pattern 6: Prefix Sum
+
+**Core idea:** Build a running total so you can answer "what's the sum from index i to j?" in O(1) instead of re-adding every time.
+
+```
+nums   = [2, 4, 1, 3, 5]
+prefix = [0, 2, 6, 7, 10, 15]   ← start with 0 to avoid edge cases
+```
+
+**Formula:** sum from index i to j = `prefix[j+1] - prefix[i]`
+
+**When to use:** Any problem asking about subarray sums, range sums, or "how many subarrays sum to X."
+
+### Subarray Sum Equals K (LeetCode 560)
+
+**The problem:** Given array `nums` and integer `k`, count how many contiguous subarrays sum to `k`.
+Example: `nums = [1, 1, 1]`, `k = 2` → `2`
+
+**Brute force:** Two nested loops, check every subarray. O(n²).
+
+**The trick — it's Two Sum in disguise:**
+- Keep a running `sum` (your prefix sum)
+- At each step ask: "Is `sum - k` in my dictionary?"
+- If yes → there's a subarray between that earlier prefix sum and now that equals `k`
+- Same logic as Two Sum: `complement = target - current`
+
+**Why `dict[0] = 1` at the start?**
+If `sum` itself equals `k`, then `sum - k = 0`. You need `0` in the dictionary to count this case. It means "a subarray from the very start sums to k."
+
+**Why `count += dict[sum - k]` and not just `count++`?**
+The same prefix sum can appear multiple times. If `sum - k` shows up 3 times in the dictionary, that means 3 different subarrays ending here sum to `k`.
+
+**Why `dict[sum]++` and not `dict[sum] = 1`?**
+Same prefix sum can occur multiple times (especially with negative numbers). You need to track HOW MANY times, not just that it exists.
+
+**Complexity:** O(n) time — one pass. O(n) space — dictionary.
+
+**Dry Run:** `nums = [1, 1, 1]`, `k = 2`
+
+```
+Start: sum = 0, count = 0, dict = {0: 1}
+
+i=0: sum = 0 + 1 = 1
+     sum - k = 1 - 2 = -1 → not in dict → nothing
+     add sum to dict → dict = {0:1, 1:1}
+
+i=1: sum = 1 + 1 = 2
+     sum - k = 2 - 2 = 0 → found in dict! dict[0] = 1 → count += 1 → count = 1
+     (matlab index 0 se 1 tak ka subarray [1,1] sum = 2 hai ✓)
+     add sum to dict → dict = {0:1, 1:1, 2:1}
+
+i=2: sum = 2 + 1 = 3
+     sum - k = 3 - 2 = 1 → found in dict! dict[1] = 1 → count += 1 → count = 2
+     (matlab index 1 se 2 tak ka subarray [1,1] sum = 2 hai ✓)
+     add sum to dict → dict = {0:1, 1:1, 2:1, 3:1}
+
+Return count = 2 ✓
+```
+
+**Hindi mein samjho:**
+Socho tumhare paas ek running total hai — jaise tum aage badhte ho, sum badhta jaata hai. Ab har step pe tum puchho: "Kya pehle kabhi aisa hua tha ki sum `sum - k` tha?" Agar haan — toh uske baad se lekar ab tak ka subarray ka sum exactly `k` hai. Yeh Two Sum jaisa hi hai — complement dhoondho dictionary mein. `dict[0] = 1` isliye rakhte ho kyunki agar starting se hi sum = k ho gaya, toh `sum - k = 0` dictionary mein milna chahiye.
+
+---
+
 ## Pattern 3: Intervals + Min-Heap
 
 **Problem:** Meeting Rooms II
