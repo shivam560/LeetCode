@@ -209,6 +209,51 @@ Return count = 2 ✓
 **Hindi mein samjho:**
 Socho tumhare paas ek running total hai — jaise tum aage badhte ho, sum badhta jaata hai. Ab har step pe tum puchho: "Kya pehle kabhi aisa hua tha ki sum `sum - k` tha?" Agar haan — toh uske baad se lekar ab tak ka subarray ka sum exactly `k` hai. Yeh Two Sum jaisa hi hai — complement dhoondho dictionary mein. `dict[0] = 1` isliye rakhte ho kyunki agar starting se hi sum = k ho gaya, toh `sum - k = 0` dictionary mein milna chahiye.
 
+### Product of Array Except Self (LeetCode 238)
+
+**The problem:** Array diya hai, har element ke liye baaki sab ka product return karo. Division use nahi kar sakte.
+Example: `nums = [1, 2, 3, 4]` → `[24, 12, 8, 6]`
+
+**Brute force:** Har element ke liye baaki sab multiply karo. O(n²).
+
+**The trick — left product × right product:**
+Har index ka answer do parts mein tod sakte ho:
+- Left side ka product = mere se pehle sab ka product
+- Right side ka product = mere baad sab ka product
+- Answer = left × right
+
+**Kaise banayein — two passes:**
+1. Left to right: running product rakhte jao, **pehle store karo, phir multiply karo** (taaki current element include na ho)
+2. Right to left: same cheez ulta, directly result mein multiply karo
+
+**Space trick:** Alag left aur right array mat banao. Result array mein left pass daalo, phir right pass directly uspe multiply karo. O(1) extra space.
+
+**Real-life analogy:** Socho tum ek line mein khade ho. Tumhe jaanna hai ki tumhare **bina** sabke heights ka product kya hai. Toh pehle left se sabka product note karo (tumse pehle wale), phir right se (tumhare baad wale). Dono combine karo — tumhare bina sabka product mil gaya.
+
+**Dry Run:** `nums = [1, 2, 3, 4]`
+
+```
+Left pass (prod = 1):
+  i=0: result[0] = 1,  prod = 1×1 = 1    ← mere left mein kuch nahi, toh 1
+  i=1: result[1] = 1,  prod = 1×2 = 2    ← left mein sirf nums[0]=1
+  i=2: result[2] = 2,  prod = 2×3 = 6    ← left mein 1×2 = 2
+  i=3: result[3] = 6,  prod = 6×4 = 24   ← left mein 1×2×3 = 6
+
+result = [1, 1, 2, 6]  ← har index ke LEFT side ka product
+
+Right pass (prod = 1):
+  j=3: result[3] = 6×1 = 6,   prod = 1×4 = 4     ← right mein kuch nahi, toh ×1
+  j=2: result[2] = 2×4 = 8,   prod = 4×3 = 12    ← right mein sirf nums[3]=4
+  j=1: result[1] = 1×12 = 12, prod = 12×2 = 24   ← right mein 4×3 = 12
+  j=0: result[0] = 1×24 = 24, prod = 24×1 = 24   ← right mein 4×3×2 = 24
+
+result = [24, 12, 8, 6] ✓
+```
+
+**Yaad rakhne ka rule:** "Pehle store, phir multiply" — taaki current element apne answer mein include na ho.
+
+**Complexity:** O(n) time — two passes. O(1) space — sirf output array.
+
 ---
 
 ## Pattern 3: Intervals + Min-Heap
