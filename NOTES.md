@@ -256,6 +256,83 @@ result = [24, 12, 8, 6] ✓
 
 ---
 
+## Pattern 7: Fast & Slow Pointers
+
+**Core idea:** Do pointers — slow 1 step, fast 2 steps. Agar cycle hai toh milenge, nahi hai toh fast null pe pahunch jayega.
+**When to use:** Cycle detection, middle of linked list, happy number, palindrome linked list.
+**Real-life analogy:** Circular track pe do runners — ek slow, ek fast. Agar track circular hai toh fast slow ko zaroor lap karega aur dono milenge.
+
+### Linked List Cycle (LeetCode 141)
+
+**The problem:** Linked list mein cycle hai ya nahi?
+**Approach:** Slow 1 step, fast 2 steps. Agar `slow == fast` → cycle hai. Agar fast `null` pe pahuncha → no cycle.
+**Why check `fast.next != null`?** Kyunki fast 2 steps leta hai — `fast.next.next` call karne se pehle `fast.next` exist karna chahiye warna crash.
+
+```csharp
+while (fast != null && fast.next != null)
+{
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow == fast) return true;
+}
+return false;
+```
+
+**Complexity:** O(n) time, O(1) space.
+
+### Linked List Cycle II (LeetCode 142)
+
+**The problem:** Cycle detect toh kar liya. Ab batao cycle **kahan se** start hoti hai?
+
+**Phase 1:** Same as above — slow aur fast chalao jab tak milein.
+
+**Phase 2 — the math trick:**
+Jab slow aur fast milte hain:
+1. Ek pointer **head** pe bhejo
+2. Doosra **meeting point** pe rehne do
+3. Dono ko **1-1 step** se chalao
+4. Jahan milenge → **wahi cycle start hai**
+
+**Kaam kyun karta hai?**
+```
+A = head se cycle start tak ka distance
+B = cycle start se meeting point tak
+C = cycle ki length
+
+Slow ne travel kiya: A + B
+Fast ne travel kiya: A + B + C (ek extra round)
+Fast double speed: 2(A + B) = A + B + C
+Solve: A = C - B
+```
+Matlab: head se cycle start = meeting point se cycle start. Isliye dono 1-1 step se chalao → cycle start pe milenge.
+
+**Dry Run:** `1 → 2 → 3 → 4 → 5 → 3 (cycle at node 3)`
+
+```
+A = 2 (head se cycle start: 1→2→3)
+Cycle = 3→4→5→3 (length C = 3)
+
+Phase 1 — find meeting point:
+  Step 0: slow = 1, fast = 1
+  Step 1: slow = 2, fast = 3
+  Step 2: slow = 3, fast = 5
+  Step 3: slow = 4, fast = 4   ← MILGAYE! Meeting point = node 4
+
+Phase 2 — find cycle start:
+  pointer1 = head (node 1)
+  pointer2 = meeting point (node 4)
+  
+  Step 1: pointer1 = 2, pointer2 = 5
+  Step 2: pointer1 = 3, pointer2 = 3   ← MILGAYE! → Node 3 = cycle start ✓
+```
+
+**Hindi mein samjho:**
+Socho do dost hain. Ek sadak ke shuru se chalta hai, doosra us jagah se jahan pehle race mein mile the. Dono same speed se chalte hain. Jahan milenge — wahi woh jagah hai jahan sadak circular track se milti hai. Wahi cycle ka start hai.
+
+**Complexity:** O(n) time, O(1) space.
+
+---
+
 ## Pattern 3: Intervals + Min-Heap
 
 **Problem:** Meeting Rooms II
