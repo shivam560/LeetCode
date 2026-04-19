@@ -331,6 +331,46 @@ Socho do dost hain. Ek sadak ke shuru se chalta hai, doosra us jagah se jahan pe
 
 **Complexity:** O(n) time, O(1) space.
 
+### Reverse Linked List (LeetCode 206)
+
+**The problem:** Linked list reverse karo. `1 → 2 → 3 → null` → `3 → 2 → 1 → null`
+
+**Why 3 pointers?** Agar tum directly `curr.Next = prev` kar do, toh agla node lost ho jata hai. Isliye pehle `next` mein save karo.
+
+**The 4 steps inside the loop:**
+```
+next = curr.Next      ← save the path forward (warna lost ho jayega)
+curr.Next = prev      ← reverse the arrow
+prev = curr           ← prev aage badhao
+curr = next           ← curr aage badhao
+```
+
+**Why `while (curr != null)` not `curr.Next != null`?**
+Agar condition `curr.Next != null` ho, toh last node (jiska next null hai) reverse hi nahi hoga. Hamesha `curr != null` use karo.
+
+**Return kya karoge?** `prev` — kyunki jab loop exit hota hai, `curr = null` aur `prev` last node pe hota hai (jo naya head hai).
+
+**Dry Run:** `1 → 2 → 3 → null`
+
+```
+Initial: prev = null, curr = 1
+
+Step 1: next = 2, curr.Next = null, prev = 1, curr = 2
+        State: null ← 1    |    2 → 3 → null
+
+Step 2: next = 3, curr.Next = 1, prev = 2, curr = 3
+        State: null ← 1 ← 2    |    3 → null
+
+Step 3: next = null, curr.Next = 2, prev = 3, curr = null
+        State: null ← 1 ← 2 ← 3
+
+Loop ends. Return prev = 3. ✓
+```
+
+**Real-life analogy:** Ek line mein log khade hain, sab aage dekh rahe hain. Tum chahte ho sab peeche dekhein. Har person ke paas jao, usko peeche mudne bolo — lekin pehle **agla person kaun hai yaad rakh lo**, warna line mein kahan hai pata nahi chalega.
+
+**Complexity:** O(n) time, O(1) space.
+
 ---
 
 ## Pattern 3: Intervals + Min-Heap
