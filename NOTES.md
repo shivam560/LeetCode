@@ -592,6 +592,19 @@ result = [1, 1, 4, 2, 1, 1, 0, 0]  ✓  (indices 6,7 stack mein reh gaye → 0)
 
 **Yaad rakhne ka rule:** "Naya bada/garam element aaya → peeche ke chhote/thande ka hisaab chukta kar do (pop) — unka answer abhi `i - k` hai."
 
+### Next Greater Element I (LeetCode 496)
+
+**The problem:** `nums1` (jo `nums2` ka subset hai) ke har element ke liye, `nums2` mein uske **right ka pehla bada** element. Na mile → `-1`.
+Example: `nums1=[4,1,2]`, `nums2=[1,3,4,2]` → `[-1, 3, -1]`
+
+**The twist — do array:** Stack **`nums2`** pe chalao (next greater wahin dhoondhna hai). Har element ka next greater nikaal ke ek **HashMap** mein daalo: `{value → next greater}`. Phir `nums1` sirf **O(1) lookup**. (nums2 distinct hai → saaf key→value map, koi clash nahi.)
+
+**Daily Temps se farak:** wahan **distance** (`i-k`) chahiye tha → stack mein **index**. Yahan **value** chahiye + nums2 distinct → stack mein seedhe **value** daal sakte ho.
+
+**`-1` kaise:** Jo elements stack mein reh gaye (koi next greater nahi) woh map mein aate hi nahi → `nums1` lookup pe `dict.ContainsKey` false → `-1`. (Leftover ko alag se -1 map karne ki zaroorat nahi.)
+
+**Complexity:** O(m + n) time (m=nums2, n=nums1 — stack pass amortized O(m) + lookups O(n)). O(m) space.
+
 ---
 
 ## Array of Arrays — int[][]

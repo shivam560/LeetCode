@@ -48,7 +48,7 @@ A pattern is "done" only when you can:
 | 8   | DFS / BFS            | 🔴         | —                                         | 5      |
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
-| 11  | Monotonic Stack      | 🟡         | Daily Temperatures                        | 3      |
+| 11  | Monotonic Stack      | 🟡         | Daily Temperatures, Next Greater Element I | 3      |
 | 12  | Dynamic Programming  | 🔴         | —                                         | 8      |
 | 13  | Topological Sort     | 🔴         | —                                         | 2      |
 | 14  | Union Find           | 🔴         | —                                         | 2      |
@@ -79,6 +79,7 @@ A pattern is "done" only when you can:
 | 16  | Linked List Cycle II                      | Fast & Slow      | Medium     | 🟡         | 2026-04-12 | Floyd's; A = C − B for cycle start             |
 | 17  | Reverse Linked List                       | Fast & Slow      | Easy       | 🟡         | 2026-04-12 | 3-pointer reverse; prior soln revisited        |
 | 18  | Daily Temperatures                        | Monotonic Stack  | Medium     | 🟡         | 2026-06-28 | Derived pattern solo; debugged to working; O(n) amortized |
+| 19  | Next Greater Element I                    | Monotonic Stack  | Easy       | 🟢         | 2026-06-28 | Recognized pattern in new form; stack+HashMap, O(m+n) |
 
 
 ---
