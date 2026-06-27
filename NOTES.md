@@ -27,6 +27,9 @@
 **Complexity:** O(n) time, O(n) space
 **When to use:** Need to find pairs, check existence, or trade O(n) search for O(1) lookup.
 
+**Hindi mein samjho:**
+Socho ek shaadi mein tumhe do log dhoondhne hain jinki umar milake exactly `target` ho. Har naye bande ke liye socho — "mujhe kitni umar wala chahiye?" = `target - iski umar` (complement). Phir apni diary (dictionary) mein dekho kya woh banda pehle mil chuka hai. Mil gaya → pair ready! Diary mein **add karne se pehle check karo, phir daalo** — warna banda khud se hi match kar lega. Diary mein dekhna O(1) hota hai, isliye poora O(n).
+
 ---
 
 ## Pattern 2: Sliding Window (Variable Size)
@@ -38,11 +41,17 @@
 **When to use:** "longest/shortest subarray or substring" + a condition that must hold across the window.
 **Fixed vs Variable:** Fixed = window size stays same (e.g., max sum of size K). Variable = window grows/shrinks based on condition.
 
+**Hindi mein samjho:**
+Socho tum ek gali se guzar rahe ho aur tumhe sabse lambi aisi gali chahiye jahan koi ghar (character) repeat na ho. Right pointer aage badh ke naye ghar window mein add karta hai. Jaise hi koi character dobara dikhe, left pointer ko us repeat wale character ke **just baad** tak le jao — taaki window mein sab unique rahein. left ko **kabhi peeche mat le jao** (`Math.Max`), warna purane repeats dobara ginne lagoge. Har step pe `right - left + 1` = current window size; usme se sabse bada yaad rakho.
+
 ### Max Sum Subarray of Size K
 - Fixed window — compute sum of first k elements, then slide
 - Slide: `sum = sum - nums[i - k] + nums[i]` (subtract leaving, add entering)
 - Key thinking: "What can I reuse from the previous step?" → don't recalculate, just update
 - O(n) time, O(1) space
+
+**Hindi mein samjho:**
+Socho tumhe lagatar `k` din ki kamai ka maximum total nikalna hai. Har baar poore `k` din dobara jodne ki zaroorat nahi — bas jo din window se **bahar gaya usko ghata do**, jo **naya din aaya usko jod do**: `sum = sum - nums[i-k] + nums[i]`. Window aage slide karti rehti hai aur purana kaam reuse hota hai. Real-life: chalti train ki khidki — ek dabba peeche jaata hai, ek naya aage aata hai, par tum poori train dobara nahi ginte.
 
 ### Minimum Window Substring (LeetCode 76) — HARD
 
@@ -89,6 +98,9 @@ At the end you need to return the actual substring: `s.Substring(minStart, minLe
 5. Expand → validate → shrink → record best
 
 **Complexity:** O(n) time — each char visited at most twice (once by right, once by left). O(n) space — two dictionaries.
+
+**Hindi mein samjho:**
+Socho medical store se ek combo chahiye — 1 paracetamol, 1 crocin, 1 vitamin (yeh `need` hai). Tum ek thaila (window) lekar shelf pe chalte ho aur saaman uthate jaate ho (right expand). Jaise hi thaile mein **poora combo** aa gaya (`matched == need.Count`), ab **left se faltu saaman hatana** shuru karo — sabse chhota valid thaila banane ke liye (shrink). Jab tak combo poora hai, hatate raho aur abhi tak ka **sabse chhota thaila yaad rakho** (`minStart`, `minLen`). `matched` ek single number hai jisse turant pata chalta hai combo poora hua ya nahi — har step pe poori list compare karne ki zaroorat nahi.
 
 ### Sliding Window Maximum (LeetCode 239) — HARD
 
@@ -144,6 +156,9 @@ d.Count              — size
 **Key insight to remember:** "If I'm bigger than you AND I arrived after you — you'll never be the answer. Get out." That's the whole algorithm.
 
 **Complexity:** O(n) time — each element enters and leaves the deque at most once. O(k) space — deque holds at most k elements.
+
+**Hindi mein samjho:**
+Socho ek line mein log khade hain aur tum sirf `k` logo ki khidki ke through dekh rahe ho — usme sabse lamba kaun? Deque mein hum sirf woh log rakhte hain jo "abhi tak ke dabang" hain — front pe sabse lamba. Jab naya aadmi aata hai jo peeche khade chhoton se bada hai, woh chhote **kabhi answer nahi banenge** (kyunki naya unse bada bhi hai aur baad tak rahega bhi) — unhe deque se nikaal do. Jo aadmi khidki se bahar nikal gaya (purana index) usko front se hata do. Front hamesha current khidki ka sabse lamba. Rule yaad rakho: **"Main tujhse bada bhi hu aur tere baad bhi aaya — tu kabhi answer nahi banega, nikal."**
 
 ---
 
@@ -381,6 +396,9 @@ Loop ends. Return prev = 3. ✓
 **Complexity:** O(n log n) time, O(n) space
 **When to use:** Interval scheduling, resource allocation, "minimum number of X needed" problems.
 
+**Hindi mein samjho:**
+Socho tum ek hotel ke manager ho aur meetings ki list hai (har ek ka start–end time). Batana hai **kitne kamre** chahiye taaki koi meeting bina kamre ke na rahe. Pehle sab meetings **start time se sort** karo (jo pehle aaya, pehle settle hoga). Min-heap mein rakho har kamre ka "kab khaali hoga" time. Nayi meeting aaye toh dekho — jo kamra sabse pehle khaali ho raha hai (heap ka top), kya woh is meeting ke **start se pehle** khaali ho gaya? Haan → wahi kamra reuse karo (Dequeue, phir naya end Enqueue). Nahi → **naya kamra** kholo (Enqueue). Aakhir mein heap ka size = total kamre chahiye.
+
 ---
 
 ## Data Structure: Heap / PriorityQueue
@@ -429,10 +447,15 @@ heap.Count;                        // size
 - Skip non-alphanumeric with `continue`, compare with `char.ToLower`
 - O(n) time, O(1) space
 
+**Hindi mein samjho:** Palindrome matlab aage se aur peeche se same padhe (jaise "NITIN" ya "MALAYALAM"). Do ungli rakho — ek shuru pe, ek aakhir pe — andar ki taraf badhao aur har step pe compare karo. Beech mein jo spaces/special characters aayein unhe `continue` se skip karo, aur case ignore karne ke liye `char.ToLower`. Real-life: do log ek kitaab ke dono kinaron se ek-ek page padhte hue beech mein milte hain — agar har page match hua toh palindrome.
+
 ### Container With Most Water (LeetCode 11)
 - Area = `Math.Min(height[left], height[right]) * (right - left)`
 - Always move the **shorter** pointer — width shrinks, so only taller height can help
 - O(n) time, O(1) space
+
+**Hindi mein samjho:** Socho do deewarein hain aur unke beech paani bharna hai. Paani ki height = **chhoti waali deewar** (kyunki badi deewar usse zyada paani rok nahi sakti — upar se overflow ho jayega). Width = dono ke beech ki doori. Do pointer rakho — ek bilkul shuru, ek bilkul aakhir (sabse zyada width). Ab **hamesha chhoti deewar waala pointer aage badhao**. Kyun? Width toh har step pe ghategi hi — toh area sirf tabhi badh sakta hai jab height badhe, aur height tabhi badhegi jab **chhoti** deewar hatao. Badi deewar hatane ka koi fayda nahi, kyunki paani toh chhoti deewar hi decide kar rahi thi.
+> ⚠️ **Yeh tera weak spot hai — pakka yaad rakh: CHHOTA hatao, bada nahi.**
 
 ### 3Sum (LeetCode 15)
 - Sort first → duplicates are adjacent → easy to skip
@@ -440,6 +463,8 @@ heap.Count;                        // size
 - Skip `i` duplicates: `if (i > 0 && nums[i] == nums[i-1]) continue;` — compare backward to skip second occurrence, not first
 - After finding triplet: skip duplicate lefts and rights with while loops, then `left++; right--;`
 - O(n²) time, O(1) space
+
+**Hindi mein samjho:** Teen number dhoondhne hain jinka sum 0 ho. Pehle array **sort** karo — isse same numbers aas-paas aa jaate hain (skip karna easy). Ab ek number **fix** karo (outer loop), baaki do ke liye problem Two Sum ban gayi — `left` aur `right` pointer chalao. Sum zyada hai toh `right--` (chhota karo), kam hai toh `left++` (bada karo), exact 0 mila toh triplet add karo. Duplicate numbers skip karo warna same triplet baar-baar aayega. Real-life: ek dost ko fix karo, phir baaki dosto mein se aise do dhoondho jo us pehle dost ke saath milke total 0 bana dein.
 
 ---
 
@@ -467,11 +492,15 @@ heap.Count;                        // size
 - `left <= right`, return `mid` when found
 - O(log n) time, O(1) space
 
+**Hindi mein samjho:** Dictionary mein word dhoondhne jaisa — beech se kholo. Jo dhoond rahe ho woh `mid` se aage hai ya peeche? Jis taraf nahi hai woh **aadha hissa hata do**, baaki aadhe mein wahi dohrao. Har step pe search space aadha — isliye O(log n). `mid = left + (right - left) / 2` likho (seedhe `(left+right)/2` se overflow ho sakta hai). Mil gaya → `mid` return; nahi mila → `-1`.
+
 ### First Bad Version (LeetCode 278)
 - Boundary search — find where false flips to true
 - `right = mid` (not `mid - 1`) because mid might be the answer
 - `left < right` (not `<=`) to avoid infinite loop
 - O(log n) time, O(1) space
+
+**Hindi mein samjho:** Socho versions ki line hai — pehle sab theek (good), phir ek point ke baad sab kharab (bad). Tumhe **pehla kharab** version dhoondhna hai. `mid` check karo: kharab hai? Toh answer yahi ya isse pehle ho sakta hai → `right = mid` (`mid` ko mat chhodo, woh khud answer ho sakta hai). Theek hai? Toh answer aage hai → `left = mid + 1`. `left < right` use karo warna infinite loop. Real-life: doodh ki bottles ki line — kahaan se kharab milna shuru hua, wahi **pehli kharab bottle** dhoondhni hai.
 
 ### Search in Rotated Sorted Array (LeetCode 33)
 - Array is sorted but rotated at some pivot
@@ -479,6 +508,8 @@ heap.Count;                        // size
 - Check which half is sorted: `nums[left] <= nums[mid]` → left half sorted
 - Check if target falls within the sorted half's **range** (both bounds!) — not just one side
 - O(log n) time, O(1) space
+
+**Hindi mein samjho:** Socho ek sorted list thi `(1,2,3,4,5,6,7)` par kisi ne usse kahin se **ghuma diya (rotate)** — ab woh aisi `(4,5,6,7,1,2,3)`. Phir bhi jab tum beech (`mid`) pe dekhte ho, **ek na ek half hamesha properly sorted hota hai**. Pehle pata karo kaunsa half sorted hai (`nums[left] <= nums[mid]` → left half sorted). Phir dekho tumhara target us sorted half ki **range ke andar** aata hai ya nahi (**dono bounds** check karo!) — haan toh udhar jao, nahi toh doosre half mein. Real-life: ghadi (clock) ke numbers ko kahin se kaat ke ghuma diya — phir bhi aadha hissa sequence mein rahega, usi sorted half ko anchor banao.
 
 **Why both bounds matter:**
 ```
@@ -514,6 +545,52 @@ If right half sorted:
   target > nums[mid] && target <= nums[right]  → search right (left = mid + 1)
   otherwise                                    → search left (right = mid - 1)
 ```
+
+---
+
+## Pattern 8: Monotonic Stack
+
+**Core idea:** Ek stack jo hamesha sorted rehta hai (increasing ya decreasing). Jab naya element aata hai jo purane "bekaar" elements ko obsolete kar deta hai, unhe pop kar do. Wahi "bekaar ko nikaal do" soch jo Monotonic Deque (Sliding Window Max) mein thi — bas yahan ek hi end (stack / LIFO).
+**When to use:** "Next greater/smaller element", "next warmer day", "kitni door tak wait" — jab har element ke liye aage/peeche ka pehla bada/chhota dhoondhna ho.
+**Real-life analogy:** Logo ki line jo apne "garam din" ka wait kar rahi hai. Jab ek garam din aata hai, woh peeche khade saare thande dino ka wait **ek-ek karke, sabse haal wale se** khatam karta hai (LIFO). Jo kisi garam din ke intezaar mein reh gaye → unka answer 0.
+
+### Daily Temperatures (LeetCode 739)
+
+**The problem:** Har din ke liye batao kitne din baad garam din aayega. Aage koi garam nahi → 0.
+Example: `[73,74,75,71,69,72,76,73]` → `[1,1,4,2,1,1,0,0]`
+
+**Brute force:** Har din se aage scan karo jab tak garam na mile. O(n²) (decreasing array mein har `i` poora aage scan karega).
+
+**The trick — perspective ulto:** "Har din apna garam din dhoondhe" ki jagah socho "aaj ka garam din kin **pichle** dino ka wait khatam karta hai." Waiting days hamesha **decreasing order** mein hote hain (agar koi pichla din aaj se thanda nahi hota toh woh pehle hi resolve ho gaya hota). Naya garam din **recent (top)** se resolve karta hai → **Stack**.
+
+**Store INDICES, not temperatures** — kyunki answer `i - k` (kitne din ka gap) chahiye, jo sirf index se nikalta hai. (Wahi SW Max wali seekh: value batati hai "kaun", index batata hai "kahan / kitna door".)
+
+**The algorithm:**
+1. `for` har din `i` pe
+2. `while` stack ka top aaj se thanda hai (`temps[stack.Peek()] < temps[i]`): pop karo `k`, phir `result[k] = i - k`
+3. `stack.Push(i)`
+4. Jo stack mein reh gaye → answer `0` (default array value)
+
+**Dry Run:** `temps = [73, 74, 75, 71, 69, 72, 76, 73]`
+
+```
+i=0 (73): stack khaali → push 0.                          stack=[0]
+i=1 (74): top=73 < 74 → pop 0, result[0]=1-0=1. push 1.   stack=[1]
+i=2 (75): top=74 < 75 → pop 1, result[1]=2-1=1. push 2.   stack=[2]
+i=3 (71): top=75 < 71? nahi → push 3.                     stack=[2,3]
+i=4 (69): top=71 < 69? nahi → push 4.                     stack=[2,3,4]
+i=5 (72): top=69<72 → pop 4, result[4]=1; top=71<72 → pop 3, result[3]=2;
+          top=75<72? nahi → push 5.                       stack=[2,5]
+i=6 (76): top=72<76 → pop 5, result[5]=1; top=75<76 → pop 2, result[2]=4;
+          push 6.                                         stack=[6]
+i=7 (73): top=76 < 73? nahi → push 7.                     stack=[6,7]
+
+result = [1, 1, 4, 2, 1, 1, 0, 0]  ✓  (indices 6,7 stack mein reh gaye → 0)
+```
+
+**Complexity:** O(n) time — har index ek baar push, ek baar pop (amortized; nested `while` dikhne ke bawajood O(n²) NAHI). O(n) space — stack worst case saare indices (strictly decreasing array).
+
+**Yaad rakhne ka rule:** "Naya bada/garam element aaya → peeche ke chhote/thande ka hisaab chukta kar do (pop) — unka answer abhi `i - k` hai."
 
 ---
 

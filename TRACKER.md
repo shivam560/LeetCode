@@ -25,10 +25,10 @@ A pattern is "done" only when you can:
 | Arrays               | 🟡         | Comfortable with traversal, needs edge case discipline                |
 | Dictionary/HashMap   | 🟢         | Used effectively in Two Sum and Sliding Window                        |
 | Heap / PriorityQueue | 🟢         | Internals understood — insert/bubble up, remove/bubble down, O(log n) |
-| Linked List          | 🟡         | Has prior solutions, needs reassessment                               |
-| Trees                | 🟡         | Has prior solutions, needs reassessment                               |
+| Linked List          | 🟡         | Cycle I/II, Reverse, Merge solved; Fast & Slow notes complete         |
+| Trees                | 🟡         | Prior solutions (Pre/Postorder, Symmetric) — needs reassessment       |
 | Graphs               | 🔴         | Not started                                                           |
-| Stack / Queue        | 🟡         | Not assessed yet                                                      |
+| Stack / Queue        | 🟡         | Monotonic Deque used in Sliding Window Maximum                        |
 
 
 ---
@@ -39,16 +39,16 @@ A pattern is "done" only when you can:
 | #   | Pattern              | Confidence | Problems Solved                           | Target |
 | --- | -------------------- | ---------- | ----------------------------------------- | ------ |
 | 1   | HashMap Lookup       | 🟢         | Two Sum                                   | 3      |
-| 2   | Sliding Window       | 🟡         | Longest Substring Without Repeating Chars | 4      |
+| 2   | Sliding Window       | 🟢         | Longest Substring, Max Sum Subarray K, Min Window Substring, Sliding Window Maximum | 4 ✅   |
 | 3   | Intervals + Heap     | 🟡         | Meeting Rooms II                          | 3      |
 | 4   | Two Pointers         | 🟡         | Valid Palindrome, Container With Most Water, 3Sum | 4      |
-| 5   | Fast & Slow Pointers | 🔴         | —                                         | 3      |
+| 5   | Fast & Slow Pointers | 🟡         | Linked List Cycle, Linked List Cycle II, Reverse Linked List | 3 ✅   |
 | 6   | Binary Search        | 🟡         | Binary Search, First Bad Version, Search in Rotated Sorted Array | 4      |
-| 7   | Prefix Sum           | 🔴         | —                                         | 3      |
+| 7   | Prefix Sum           | 🟡         | Subarray Sum Equals K, Product of Array Except Self | 3      |
 | 8   | DFS / BFS            | 🔴         | —                                         | 5      |
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
-| 11  | Monotonic Stack      | 🔴         | —                                         | 3      |
+| 11  | Monotonic Stack      | 🟡         | Daily Temperatures                        | 3      |
 | 12  | Dynamic Programming  | 🔴         | —                                         | 8      |
 | 13  | Topological Sort     | 🔴         | —                                         | 2      |
 | 14  | Union Find           | 🔴         | —                                         | 2      |
@@ -71,7 +71,27 @@ A pattern is "done" only when you can:
 | 8   | First Bad Version                         | Binary Search    | Easy       | 🟢         | 2026-03-14 | Boundary template understood                   |
 | 9   | Search in Rotated Sorted Array            | Binary Search    | Medium     | 🟡         | 2026-03-14 | Needed guidance on both-bounds check           |
 | 10  | Max Sum Subarray of Size K                | Sliding Window   | Easy       | 🟢         | 2026-03-17 | Solved independently — fixed window            |
+| 11  | Minimum Window Substring                  | Sliding Window   | Hard       | 🟢         | 2026-04-05 | Shrink logic verified + explained ✓ 2026-06-21 |
+| 12  | Sliding Window Maximum                    | Sliding Window   | Hard       | 🟢         | 2026-04-06 | Deque verified + explained ✓ 2026-06-28        |
+| 13  | Subarray Sum Equals K                     | Prefix Sum       | Medium     | 🟢         | 2026-04-12 | "Two Sum in disguise"; recall ✓ 2026-06-21     |
+| 14  | Product of Array Except Self              | Prefix Sum       | Medium     | 🟡         | 2026-04-12 | Left×right product, O(1) extra space           |
+| 15  | Linked List Cycle                         | Fast & Slow      | Easy       | 🟡         | 2026-04-12 | Notes done; prior soln (2025) revisited        |
+| 16  | Linked List Cycle II                      | Fast & Slow      | Medium     | 🟡         | 2026-04-12 | Floyd's; A = C − B for cycle start             |
+| 17  | Reverse Linked List                       | Fast & Slow      | Easy       | 🟡         | 2026-04-12 | 3-pointer reverse; prior soln revisited        |
+| 18  | Daily Temperatures                        | Monotonic Stack  | Medium     | 🟡         | 2026-06-28 | Derived pattern solo; debugged to working; O(n) amortized |
 
+
+---
+
+## Prior Solutions (Pre-Program — 2025, not yet pattern-assessed)
+
+These exist on disk from before the structured program. Real solutions, but not drilled or assessed under the current pattern framework — revisit when the relevant pattern comes up:
+
+- **HashMap:** Group Anagrams, Valid Anagrams
+- **Linked List:** Merge Two Sorted Lists
+- **Binary Search:** Sqrt(x) / Find Square Root, Find Minimum in Rotated Sorted Array
+- **Trees:** Binary Tree Preorder, Binary Tree Postorder, Symmetric Tree
+- **Arrays:** Concatenation of Arrays, Subarray Sum (basic)
 
 ---
 
@@ -91,13 +111,15 @@ A pattern is "done" only when you can:
 
 ## Weekly Goals
 
-### Current: Week 1
+### Status (reconciled 2026-06-21)
 
-- Big O fundamentals
-- Two Sum (HashMap)
-- Longest Substring (Sliding Window)
-- Meeting Rooms II (Intervals + Heap)
-- **Heap fundamentals — PRIORITY**
-- Two Pointers pattern
-- 1st System Design problem
+- **17 program problems solved across 7 patterns** — HashMap, Sliding Window, Two Pointers, Binary Search, Intervals+Heap, Prefix Sum, Fast & Slow.
+- Returning after a long gap (last active ~2026-04-12). Today: re-read NOTES, recall ✓ on Sliding Window Max, Container, Prefix Sum.
+- All NOTES.md problems now have Hindi explanations + real-life analogies.
+
+### Next up
+
+- **Re-drill post-gap:** the Hard ones (Min Window Substring shrink logic, Sliding Window Maximum) + confirm Two Pointers / Binary Search still solid.
+- **Not started:** DFS/BFS, Backtracking, Greedy, Monotonic Stack (concept seen via deque), DP, Topological Sort, Union Find.
+- **System Design:** still 0 — pick the 1st (URL Shortener) when ready.
 
