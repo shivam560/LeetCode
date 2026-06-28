@@ -19,6 +19,30 @@
 
 ---
 
+## Pattern Recognition — Signal → Tool
+
+Problem solving = **pehchaan-na, invent karna nahi.** Problem ke keywords dekho, tool yaad karo. Toolbox jitna bada, utni aasaani.
+
+| Problem bolti hai... | Tool |
+|---|---|
+| "pair summing to target", existence check | HashMap |
+| "longest/shortest subarray/substring + condition" | Sliding Window |
+| "next greater / smaller element", "next warmer day" | Monotonic Stack |
+| **"circular / wrap / ring / round" array** | **Modulo `% n` + array ko 2x traverse (`2*n` loop)** |
+| "kth largest/smallest", "top k" | Heap |
+| "subarray sum", "range sum", "how many subarrays sum to X" | Prefix Sum |
+| sorted array, "find target / boundary" | Binary Search |
+| "cycle in linked list", "middle of list" | Fast & Slow Pointers |
+| sorted array, "pair/triplet", palindrome | Two Pointers |
+
+**Technique — Circular Array:** Index ko `i % n` se access karo → end ke baad automatically `0` pe wrap ho jaata hai. Agar har element ko poora circular view chahiye, loop `2*n` baar chalao (ek baar kaafi nahi — last element wrap karke hi apna answer pa sakta hai; do baar sab cover ho jaate hain). "Not found" ke liye result ka **default** set karo (e.g. `-1`).
+
+**Kaise derive karein (agar modulo na pata ho):** "Index `n` ya upar chala gaya, par array sirf `0..n-1`. Jab over jaaye, `n` ghata do." → baar-baar `n` ghatana = remainder = **modulo `% n`**. Zaroorat khud tool tak le aati hai.
+
+**Yaad rakhne ka rule:** Har problem ke baad likho — "yeh kis SIGNAL pe kaunsa TOOL maang rahi thi." Wahi intuition build karta hai.
+
+---
+
 ## Pattern 1: HashMap Lookup
 
 **Problem:** Two Sum
@@ -604,6 +628,31 @@ Example: `nums1=[4,1,2]`, `nums2=[1,3,4,2]` → `[-1, 3, -1]`
 **`-1` kaise:** Jo elements stack mein reh gaye (koi next greater nahi) woh map mein aate hi nahi → `nums1` lookup pe `dict.ContainsKey` false → `-1`. (Leftover ko alag se -1 map karne ki zaroorat nahi.)
 
 **Complexity:** O(m + n) time (m=nums2, n=nums1 — stack pass amortized O(m) + lookups O(n)). O(m) space.
+
+### Next Greater Element II (LeetCode 503) — circular
+
+**The problem:** Single **circular** array — har element ka next greater (end ke baad shuru se wrap karke). Na mile → `-1`.
+Example: `[1,2,1]` → `[2,-1,2]` (aakhri `1` wrap karke `2` paata hai)
+
+**Daily Temps / NGE I se farak:** ek hi array (HashMap nahi chahiye — `result[idx]` seedha bharo), aur **circular**.
+
+**Circular trick:** Loop `2*n` baar, `idx = i % n` (end ke baad wrap to 0). Do passes taaki har element ko apna wrapped next-greater dhoondhne ka mauka mile. **Push sirf pehle pass mein** (`i < n`) — second pass ke elements naye nahi, wahi purane jo already stack pe hain; unhe sirf resolve karna hai. Default `result = -1` (`Array.Fill`).
+
+**Dry Run:** `nums = [1, 2, 1]`, n=3, loop 0..5
+
+```
+result = [-1,-1,-1]
+i=0 (idx0, 1): stack empty → push 0.              stack=[0]
+i=1 (idx1, 2): nums[0]=1<2 → pop 0, result[0]=2. push 1.   stack=[1]
+i=2 (idx2, 1): nums[1]=2<1? no → push 2.          stack=[1,2]
+i=3 (idx0, 1): nums[2]=1<1? no. i<3? no.          stack=[1,2]
+i=4 (idx1, 2): nums[2]=1<2 → pop 2, result[2]=2. nums[1]=2<2? no. i<3? no.   stack=[1]
+i=5 (idx2, 1): nums[1]=2<1? no. i<3? no.          stack=[1]
+
+result = [2, -1, 2]  ✓   (index 1 ka 2 → koi bada nahi → -1)
+```
+
+**Complexity:** O(n) time — loop `2n` = O(n) (constant drop), har index ek baar push/pop. O(n) space.
 
 ---
 
