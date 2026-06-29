@@ -656,6 +656,54 @@ result = [2, -1, 2]  ✓   (index 1 ka 2 → koi bada nahi → -1)
 
 ---
 
+## Pattern 9: DFS / BFS (Tree & Graph Traversal)
+
+**Core idea:** Ek structure (tree/graph) ke saare nodes "explore" karna. Do strategies:
+- **DFS (Depth-First):** Ek raasta end tak jao, dead-end pe backtrack. Tool: **Stack ya Recursion** (recursion khud system ka call-stack use karta hai). Analogy: maze (bhulbhulaiya) solve karna.
+- **BFS (Breadth-First):** Level-by-level phailo (paas wale pehle). Tool: **Queue (FIFO)**. Analogy: paani mein patthar → ripples. **Shortest path** ke liye best.
+
+**Traversal order — tree example:**
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+- **BFS** (level by level): `1 2 3 4 5 6`
+- **DFS** (preorder — node, phir left subtree pura, phir right): `1 2 4 5 3 6`
+- **Rule:** kisi node tak uske **parent ke through** hi pahunchte ho → preorder mein parent hamesha pehle (isliye `6` se pehle uska parent `3`).
+
+**Trees vs Graphs — the `visited` set:**
+- Trees mein **cycle nahi** (har node ka ek parent). Graphs mein **cycle ho sakta** hai (A→B→C→A).
+- Bina track kiye graph pe DFS/BFS = **infinite loop**.
+- Fix: ek **`visited` set (HashSet)** rakho. Node process karne se pehle: `if (visited.Contains(node)) skip; else visited.Add(node)` phir explore. HashSet = O(1) "pehle dekha kya?" check.
+
+**When to use:** Tree/graph traversal, connected components, **shortest path (BFS)**, "does a path exist", flood fill / number of islands, level-order.
+
+### Maximum Depth of Binary Tree (LeetCode 104)
+
+**The problem:** Tree ki max depth = root se sabse door leaf tak kitne nodes.
+
+**DFS recursion — "maan le subproblem solved hai":**
+- **Base case:** `node == null` → depth `0`
+- **Combine:** poore tree ki depth = `1 + max(left subtree depth, right subtree depth)`. Woh `1` current node ko gin-ta hai (warna ek akela leaf node `0` aa jaata).
+- "Magic jo X aur Y deta hai" = function ka **khud ko call karna**: `MaxDepth(node.left)`, `MaxDepth(node.right)`. Recursion = subproblem solved maan ke combine karo.
+
+```csharp
+public int MaxDepth(TreeNode root)
+{
+    if (root == null) return 0;
+    return 1 + Math.Max(MaxDepth(root.left), MaxDepth(root.right));
+}
+```
+
+**Complexity:** O(n) time (har node ek baar visit). O(h) space — recursion ka call-stack tree ki **height** tak jaata hai (balanced → O(log n), skewed → O(n)).
+
+**Next:** Number of Islands (DFS/BFS on grid + `visited`).
+
+---
+
 ## Array of Arrays — int[][]
 
 ```csharp
