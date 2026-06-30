@@ -700,7 +700,27 @@ public int MaxDepth(TreeNode root)
 
 **Complexity:** O(n) time (har node ek baar visit). O(h) space — recursion ka call-stack tree ki **height** tak jaata hai (balanced → O(log n), skewed → O(n)).
 
-**Next:** Number of Islands (DFS/BFS on grid + `visited`).
+### Number of Islands (LeetCode 200)
+
+**The problem:** Grid of `'1'` (zameen) / `'0'` (paani). Kitne islands (4-directionally judi zameen) count karo.
+
+**Approach — DFS flood fill:**
+- Har cell pe loop. Jab ek **nayi unvisited `'1'`** mile → naya island → `count++`, phir us cell se DFS.
+- DFS poore judi hui island ko **"sink"** kar deta hai (`'1'` → `'0'`) taaki dobara na gine.
+- `count` = kitni baar **naya DFS shuru** hua.
+
+**DFS helper:**
+- **Base case (ORDER matters!):** bounds PEHLE, phir `'0'` check:
+  `if (r<0 || r>=rows || c<0 || c>=cols || grid[r][c]=='0') return;`
+  (bounds pehle warna out-of-bounds pe `grid[r][c]` access → IndexOutOfRange crash)
+- Sink: `grid[r][c] = '0';` (base case ke baad cell pakka `'1'` hai, koi `if` nahi chahiye)
+- Recurse **4 directions** (up/down/left/right — **diagonal NAHI**)
+
+**Kab rukta hai / poori grid ek island kyun nahi:** Paani (`'0'`) har island ki deewar hai — DFS paani pe return karta hai, doosre island tak nahi pahunchta. Visited land ko `'0'` bana diya → dobara process nahi (no infinite loop).
+
+**Gotcha — char:** grid `char[][]` hai → `'1'`/`'0'` **quotes** ke saath. `'1'` ki value `49` hai, `1` nahi — int se compare kabhi match nahi karega.
+
+**Complexity:** O(m×n) time (har cell constant baar). O(m×n) space worst case — agar poori grid ek hi island ho, recursion stack saap ki tarah saare cells tak gehra ja sakta hai (m+n nahi).
 
 ---
 
