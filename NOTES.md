@@ -43,6 +43,29 @@ Problem solving = **pehchaan-na, invent karna nahi.** Problem ke keywords dekho,
 
 ---
 
+## How to Attack a New Problem (Interview Framework)
+
+Nervousness aati hai "mujhe answer pata hona chahiye" se. Sach: answer **invent** nahi karte, **derive** karte hain — ek process se. **Process = calm + safety net.** Interviewer answer se zyada tera **process** dekhta hai.
+
+**Jab koi problem aaye, blank mat baith — yeh 6 step BOL ke chal:**
+
+1. **Restate + chhota example haath se solve** — problem samjho, ek choti misaal khud nikaalo.
+2. **Brute force pehle bolo** — dumb O(n²) tareeka. Safety net hai, aur interviewer ko bhi chahiye.
+3. **Signal → Tool pehchaano** — keywords se pattern recall karo (upar wali cheatsheet): "connected cells" → DFS/BFS, "next greater" → Monotonic Stack, "circular" → modulo, "subarray sum" → Prefix Sum...
+4. **Recursion/DFS ho toh 2 sawaal:**
+   - **"Kab RUKU?" (base case)** — invalid cases dhoondho (out of bounds, galat type, khaali input).
+   - **"Ek step kya + kahan recurse?"** — baaki subproblem solved maan ke combine karo.
+5. **Dry run** chhote example pe — verify.
+6. **Complexity** — time + space.
+
+**Base case derive karne ka rule:** "Main kab kuch NAHI kar sakta?" — wahi base case. (e.g. Number of Islands: grid ke bahar, ya cell `'0'`.)
+
+**Modeling derive karne ka rule:** Problem ke **shabdon ko technique mein translate** karo. "Connected horizontally/vertically" = "reachable" = DFS/BFS ka kaam. "Wrap around" = modulo. Zaroorat khud tool batati hai.
+
+**Nervousness ka ilaaj:** answers nahi, **process** practice karo. Har problem pe yeh 6 step **bol ke** karo. 30-40 problems baad automatic — aur jab process pe bharosa ho, nerves apne aap girte hain.
+
+---
+
 ## Pattern 1: HashMap Lookup
 
 **Problem:** Two Sum
