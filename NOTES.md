@@ -745,6 +745,21 @@ public int MaxDepth(TreeNode root)
 
 **Complexity:** O(m×n) time (har cell constant baar). O(m×n) space worst case — agar poori grid ek hi island ho, recursion stack saap ki tarah saare cells tak gehra ja sakta hai (m+n nahi).
 
+### Binary Tree Level Order Traversal (LeetCode 102) — BFS
+
+**The problem:** Har level ke nodes ek alag list mein. `[[3],[9,20],[15,7]]`.
+
+**BFS + level-size snapshot (yahi trick hai):**
+- Queue mein root daalo.
+- `while` queue khaali nahi:
+  - **`int levelSize = queue.Count;`** ← level ke shuru mein queue mein **sirf us level ke nodes** hote hain, toh count = us level ki node-ginti. **Loop se PEHLE snapshot lo** (loop ke andar children enqueue karne se `queue.Count` badhta hai).
+  - `for i in 0..levelSize`: dequeue → `val` ek `level` list mein → non-null children enqueue (= agla level).
+  - `result.Add(level);` — poora level = **ek entry** (`AddRange` NAHI — woh level ke ints ko result mein daal deta, par result list-of-lists hai).
+
+**DFS vs BFS — ek hi algorithm:** bas **queue ↔ stack** ka farak. Queue (FIFO) → level-by-level (BFS). Stack (LIFO) → deep-first (DFS). Isi code mein queue ki jagah stack daal do → DFS ban jayega. (DFS recursion mein woh stack = system ka call-stack.)
+
+**Complexity:** O(n) time (har node ek baar enqueue/dequeue). O(n) space — queue worst case sabse **chaudा level** (~n/2 nodes, complete tree ka last level).
+
 ---
 
 ## Array of Arrays — int[][]
