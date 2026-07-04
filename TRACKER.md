@@ -45,7 +45,7 @@ A pattern is "done" only when you can:
 | 5   | Fast & Slow Pointers | 🟡         | Linked List Cycle, Linked List Cycle II, Reverse Linked List | 3 ✅   |
 | 6   | Binary Search        | 🟡         | Binary Search, First Bad Version, Search in Rotated Sorted Array | 4      |
 | 7   | Prefix Sum           | 🟡         | Subarray Sum Equals K, Product of Array Except Self | 3      |
-| 8   | DFS / BFS            | 🟡         | Maximum Depth of Binary Tree, Number of Islands, Binary Tree Level Order Traversal | 5      |
+| 8   | DFS / BFS            | 🟢         | Max Depth, Number of Islands, Level Order, Rotting Oranges, Max Area of Island | 5 ✅   |
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
 | 11  | Monotonic Stack      | 🟢         | Daily Temperatures, Next Greater Element I, Next Greater Element II | 3 ✅   |
@@ -84,6 +84,8 @@ A pattern is "done" only when you can:
 | 21  | Maximum Depth of Binary Tree              | DFS / BFS        | Easy       | 🟢         | 2026-06-30 | First recursion/DFS — base case + 1+max(L,R), first try |
 | 22  | Number of Islands                         | DFS / BFS        | Medium     | 🟡         | 2026-07-01 | DFS flood fill on grid; sink-as-visited, 4-dir, bounds-first |
 | 23  | Binary Tree Level Order Traversal         | DFS / BFS        | Medium     | 🟡         | 2026-07-03 | First BFS — queue + level-size snapshot (got trick, needed code scaffold) |
+| 24  | Rotting Oranges                           | DFS / BFS        | Medium     | 🟡         | 2026-07-04 | Multi-source BFS, level=minute; fixed DFS-recursion instinct + -1 bounds; daytime session! |
+| 25  | Max Area of Island                        | DFS / BFS        | Medium     | 🟢         | 2026-07-04 | Value-returning DFS (1 + sum of 4); applied framework himself; pattern → 🟢 |
 
 
 ---

@@ -681,6 +681,17 @@ result = [2, -1, 2]  ✓   (index 1 ka 2 → koi bada nahi → -1)
 
 ## Pattern 9: DFS / BFS (Tree & Graph Traversal)
 
+**Mental model — sab kuch GRAPH hai (yeh sabse zaroori samajh):**
+DFS/BFS **trees** ke baare mein NAHI — **graphs** ke baare mein hai. Tree aur grid **dono** graph ke roop hain. Graph = **nodes + neighbors (connections)**. DFS/BFS ka kaam ek hi: *"apne node pe khade ho, apne **neighbors** explore karo."* Har problem mein sirf **"neighbors kaun?"** badalta hai:
+
+| Structure | Node | Neighbors kaise milte hain |
+|---|---|---|
+| **Tree** | ek TreeNode | `node.left`, `node.right` (children) |
+| **Grid** | ek cell `(r,c)` | 4 adjacent: `(r±1,c)`, `(r,c±1)` |
+| **Graph** | ek vertex | adjacency list `adj[node]` |
+
+Grid ko tree mein "badalne" ki koshish **mat** karo — dono ko **graph** samjho. Number of Islands ke 4 `dfs` calls = "4 neighbors visit karo" = tree ke `dfs(left); dfs(right)` ka hi grid-version. Farak: grid mein **cycle** ho sakti hai → `visited` chahiye; tree mein nahi.
+
 **Core idea:** Ek structure (tree/graph) ke saare nodes "explore" karna. Do strategies:
 - **DFS (Depth-First):** Ek raasta end tak jao, dead-end pe backtrack. Tool: **Stack ya Recursion** (recursion khud system ka call-stack use karta hai). Analogy: maze (bhulbhulaiya) solve karna.
 - **BFS (Breadth-First):** Level-by-level phailo (paas wale pehle). Tool: **Queue (FIFO)**. Analogy: paani mein patthar → ripples. **Shortest path** ke liye best.
@@ -759,6 +770,51 @@ public int MaxDepth(TreeNode root)
 **DFS vs BFS — ek hi algorithm:** bas **queue ↔ stack** ka farak. Queue (FIFO) → level-by-level (BFS). Stack (LIFO) → deep-first (DFS). Isi code mein queue ki jagah stack daal do → DFS ban jayega. (DFS recursion mein woh stack = system ka call-stack.)
 
 **Complexity:** O(n) time (har node ek baar enqueue/dequeue). O(n) space — queue worst case sabse **chaudा level** (~n/2 nodes, complete tree ka last level).
+
+### Rotting Oranges (LeetCode 994) — Multi-source BFS
+
+**The problem:** Grid: `0` khaali, `1` fresh, `2` rotten. Har minute rotten apne 4 padosi fresh ko rot karta hai. Kitne minutes mein sab rot? Kabhi nahi → `-1`.
+
+**Multi-source BFS (naya concept):** Level Order mein queue ek root se shuru hui thi. Yahan **saare shuru ke rotten (`2`) ek saath** queue mein — kai starting points, sab ek saath failte hain. Har **BFS level = 1 minute** (wahi `levelSize` snapshot).
+
+**3 phases:**
+1. **Scan:** har `2` → queue mein **position** `(r,c)` daalo (tuple); har `1` → `freshCount++`
+2. **BFS:** `while (queue.Count > 0 && freshCount > 0)`: `minutes++`, snapshot, har dequeued cell ke **4 padosi seedha** dekho — valid + fresh → rot (`=2`), `freshCount--`, **enqueue**
+3. **Result:** `freshCount == 0 ? minutes : -1`
+
+**⚠️ DFS-instinct wali galti (khud ki thi, yaad rakhna):** padosi pe **recursion mat lagao** — woh flood fill (DFS) hai, ek hi minute mein sab rot jaayega. BFS mein padosi ko sirf **queue mein daalo** — failane ka kaam queue karegi, **agle** minute mein. **Queue hi BFS ka "recursion" hai.**
+
+**⚠️ Bounds ka rule (har direction ka EK khatarnaak side):**
+- `+1` wale (down/right) → upar se bahar ja sakte ho → check `r+1 < rows` / `c+1 < cols`
+- `-1` wale (up/left) → **0 se neeche** gir sakte ho → check `r-1 >= 0` / `c-1 >= 0` (`< rows` likhna bekaar — hamesha true)
+
+**Edge cases (freshCount guard se free mein handle):** koi fresh hi nahi → while nahi chala → `0`. Fresh hai par rotten nahi → queue khaali → `-1`.
+
+**Complexity:** O(m×n) time (scan + har cell max ek baar enqueue/dequeue). O(m×n) space (worst case sab rotten, sab queue mein).
+
+**Hindi mein samjho:** Aag jaisi hai — kai jagah ek saath lagi hai (multi-source). Har minute mein aag **sirf ek ghar** aage badhti hai, chaaron taraf. Recursion lagate toh poora mohalla ek minute mein jal jaata (galat). Queue mein daalne ka matlab: "yeh ghar ab jal raha hai, agle minute yeh apne padosiyon ko jalaayega." Ginti rakho kitne ghar bache — end mein bache toh wahan aag kabhi pahunchi hi nahi (`-1`).
+
+### Max Area of Island (LeetCode 695)
+
+**The problem:** Grid `0`/`1` (**int** — chars nahi is baar!). Sabse bade island ka **area** (cell count). Koi nahi → 0.
+
+**Do purane problems ka sangam:** Number of Islands (flood fill) + Max Depth (**value-returning recursion**).
+
+**Core — dfs ab int LAUTATA hai:**
+- Base case: bounds ke bahar YA `0` (paani/visited) → `return 0`
+- Sink pehle (`grid[i][j] = 0`) — taaki padosi wapas poochhe toh 0 mile (no double-count, no infinite loop)
+- `return 1 + dfs(niche) + dfs(upar) + dfs(right) + dfs(left)`
+  - **`1`** = main khud ek cell
+  - **SUM, Max nahi** — area = saare cells ka TOTAL. (Max Depth mein `Math.Max` tha kyunki wahan sabse LAMBA raasta chahiye tha. Yahan sab jodna hai.)
+- **Recursion samajh:** har dfs call bas ek **number** lautati hai ("us taraf itne cells the") — use variable mein pakdo, jodo. Andar ki calls apna kaam khud sambhalti hain — tu sirf apna level soch.
+
+**Main loop:** har `1` pe `area = dfs(i,j)` → `maxArea = Math.Max(maxArea, area)`. (dfs ke **andar SUM** — ek island ka total; **main mein MAX** — islands ke beech sabse bada.)
+
+**⚠️ C# traps (aaj ke):**
+- `if (condition);` ← **semicolon after if** = khaali statement; neeche wala block HAR BAAR chalega. Compile ho jaata hai, chupchaap galat. Kabhi `;` mat lagao `if` ke baad.
+- Class field `int rows = grid.Length;` nahi ban sakta — `grid` method ka parameter hai, field use nahi dekh sakta. Fields khaali declare karo, method ke andar assign karo.
+
+**Complexity:** O(m×n) time, O(m×n) space (worst case recursion stack — poori grid ek island).
 
 ---
 
