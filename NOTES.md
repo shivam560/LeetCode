@@ -222,6 +222,32 @@ prefix = [0, 2, 6, 7, 10, 15]   ← start with 0 to avoid edge cases
 
 **When to use:** Any problem asking about subarray sums, range sums, or "how many subarrays sum to X."
 
+### Range Sum Query — Immutable (LeetCode 303) — the classic prefix array
+
+**The problem:** Array diya; **baar-baar** queries: "index i se j tak ka sum?" (hazaaron queries ho sakti hain).
+
+**Brute force:** har query pe loop = O(n) **per query** → q queries = O(q×n). Slow.
+
+**The trade — "pehle thodi mehnat, phir har sawaal muft":**
+- Constructor mein **ek baar** prefix array banao (O(n))
+- Har query = **ek subtraction** = **O(1)** ⚡
+
+**Build (bank-balance analogy):** `prefix[k]` = "pehle k elements ka total" (ab tak ka balance). Size **n+1**, `prefix[0] = 0` (pehle 0 elements ka total).
+```csharp
+prefix = new int[n + 1];
+for (int k = 0; k < n; k++)
+    prefix[k + 1] = prefix[k] + nums[k];
+```
+
+**Query:** `sum(i..j) = prefix[j+1] - prefix[i]` — "aaj tak ka balance − us din tak ka balance = beech ki kamai."
+
+**Dry run:** `nums = [-2,0,3,-5,2,-1]` → `prefix = [0,-2,-2,1,-4,-2,-3]`
+`sumRange(2,5) = prefix[6] - prefix[2] = -3 - (-2) = -1 ✓`
+
+**C# note:** `prefix` **class field** hona chahiye (constructor bharta hai, SumRange padhta hai) — local variable doosre method ko nahi dikhta (wahi rows/cols wala lesson).
+
+**Interview line yaad rakh:** *"Preprocess once in O(n), answer each query in O(1)."*
+
 ### Subarray Sum Equals K (LeetCode 560)
 
 **The problem:** Given array `nums` and integer `k`, count how many contiguous subarrays sum to `k`.
