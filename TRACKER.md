@@ -27,7 +27,7 @@ A pattern is "done" only when you can:
 | Heap / PriorityQueue | 🟢         | Internals understood — insert/bubble up, remove/bubble down, O(log n) |
 | Linked List          | 🟡         | Cycle I/II, Reverse, Merge solved; Fast & Slow notes complete         |
 | Trees                | 🟡         | Prior solutions (Pre/Postorder, Symmetric) — needs reassessment       |
-| Graphs               | 🔴         | Not started                                                           |
+| Graphs               | 🟡         | First graph problem done — adjacency list + BFS (LC 2492)             |
 | Stack / Queue        | 🟡         | Monotonic Deque used in Sliding Window Maximum                        |
 
 
@@ -86,6 +86,7 @@ A pattern is "done" only when you can:
 | 23  | Binary Tree Level Order Traversal         | DFS / BFS        | Medium     | 🟡         | 2026-07-03 | First BFS — queue + level-size snapshot (got trick, needed code scaffold) |
 | 24  | Rotting Oranges                           | DFS / BFS        | Medium     | 🟡         | 2026-07-04 | Multi-source BFS, level=minute; fixed DFS-recursion instinct + -1 bounds; daytime session! |
 | 25  | Max Area of Island                        | DFS / BFS        | Medium     | 🟢         | 2026-07-04 | Value-returning DFS (1 + sum of 4); applied framework himself; pattern → 🟢 |
+| 26  | Min Score of Path Between Cities (Daily)  | DFS / BFS        | Medium     | 🟡         | 2026-07-04 | FIRST real graph — adjacency list + BFS; insight: min edge in component; O(V+E) |
 
 
 ---

@@ -816,6 +816,30 @@ public int MaxDepth(TreeNode root)
 
 **Complexity:** O(m×n) time, O(m×n) space (worst case recursion stack — poori grid ek island).
 
+### Min Score of a Path Between Two Cities (LeetCode 2492) — FIRST GRAPH
+
+**The problem:** n cities, bidirectional weighted roads `[a, b, dist]`. Path ka score = us path ki **sabse chhoti** road. Roads/cities **dobara use allowed**. 1 se n ka minimum possible score?
+
+**The insight (derive karo, ratto mat):** "Same road multiple times allowed" → tu **kahin bhi ghoom ke wapas aa sakta hai.** Toh 1 se REACHABLE har road tere path mein aa sakti hai (jao → cross karo → wapas → phir n tak). 1 aur n same component mein hain (guaranteed) →
+> **Answer = city 1 ke connected component ki sabse chhoti edge. Path-finding ki zaroorat hi nahi!**
+
+**Adjacency List (naya concept — graph ka "phone book"):**
+- Roads edge-list mein aate hain; DFS/BFS ko chahiye "is node ke padosi kaun?" → adjacency list banao.
+- **Almari analogy:** `new List<(int,int)>[n+1]` = **array** (almari, fixed n+1 drawers — end ka `[n+1]` array banata hai, `List<>` sirf element ka type). Har drawer mein **List** (expandable file). `n+1` kyunki cities 1..n aur array 0-indexed — slot 0 waste, par `city-1` ke bugs se bachao.
+- **Do steps:** (1) array banao — slots NULL hote hain; (2) loop se har slot mein `new List<(int,int)>()` — warna `.Add` null pe crash.
+- Har road **dono pages** pe: `adj[a].Add((b,d)); adj[b].Add((a,d));` (bidirectional).
+
+**BFS over DFS-recursion kyun:** n = 1e5 tak → line-jaisa graph = 1e5 deep recursion → **StackOverflow.** Queue heap pe hoti hai — safe.
+
+**Edge-check placement:** `minScore = Math.Min(minScore, dist)` **HAR padosi entry pe** — chahe padosi visited ho (sadak ka distance count hona chahiye). Sirf **enqueue** visited-check ke peeche hai.
+
+**Complexity — GRAPH ka formula (naya):** **O(V + E)** time (V=cities, E=roads) — har city ek baar dequeue, har road ki 2 entries ek-ek baar scan. `+` isliye kyunki dono alag-alag ginti hain. Space O(V + E).
+
+**C# traps (aaj ke):**
+- **Array → `.Length`; List/Queue/HashSet/Dictionary → `.Count`**
+- Tuple kholna: `var (city, dist) = ...` (`var`, `int` nahi)
+- `return` loop ke ANDAR chala gaya tha (braces!) → **indentation rakho, brace bugs khud dikhte hain**
+
 ---
 
 ## Array of Arrays — int[][]
