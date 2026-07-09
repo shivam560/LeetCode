@@ -530,6 +530,26 @@ heap.Count;                        // size
 **Hindi mein samjho:** Socho do deewarein hain aur unke beech paani bharna hai. Paani ki height = **chhoti waali deewar** (kyunki badi deewar usse zyada paani rok nahi sakti — upar se overflow ho jayega). Width = dono ke beech ki doori. Do pointer rakho — ek bilkul shuru, ek bilkul aakhir (sabse zyada width). Ab **hamesha chhoti deewar waala pointer aage badhao**. Kyun? Width toh har step pe ghategi hi — toh area sirf tabhi badh sakta hai jab height badhe, aur height tabhi badhegi jab **chhoti** deewar hatao. Badi deewar hatane ka koi fayda nahi, kyunki paani toh chhoti deewar hi decide kar rahi thi.
 > ⚠️ **Yeh tera weak spot hai — pakka yaad rakh: CHHOTA hatao, bada nahi.**
 
+### Two Sum II — Sorted (LeetCode 167)
+
+**The problem:** Two Sum hi hai — do numbers, sum = target — par array **SORTED** hai. (Answer 1-indexed — return mein `+1`!)
+
+**Signal → Tool ka lesson:** "Sorted" ne tool badal diya. HashMap ab bhi chalega (O(n) space), par sorted + **pair** dhoondhna → **Two Pointers → O(1) space.** ("Sorted" ki do ghantiyan: ek target → Binary Search; pair/triplet → Two Pointers.)
+
+**Rule:**
+```
+sum > target  →  right--   (chhote number ki taraf, sum ghatega)
+sum < target  →  left++    (bade number ki taraf, sum badhega)
+sum == target →  mil gaya
+```
+**Sorted hi kyun chahiye:** left++ *guaranteed* badhaata hai, right-- *guaranteed* ghataata hai — deterministic navigation. Unsorted mein yeh guarantee nahi → wahan HashMap.
+
+**⚠️ Complexity misconception (interview trap):** "beech mein milte hain toh O(log n)"? **NAHI.** Do dost sadak ke dono ends se **chal ke** beech mein milte hain — milte beech mein hain, par **poori sadak** chalte hain. Har step ek pointer ek kadam → gap har baar 1 ghatta hai → **O(n).** O(log n) tab jab har step **aadha space phenko** (Binary Search kudta hai). **Rule: "Ek-ek kadam = O(n). Aadha-aadha phenko = O(log n)."**
+
+**Complexity:** O(n) time, O(1) space.
+
+**Hindi mein samjho:** Sorted line mein sabse halka (left) aur sabse bhaari (right) bande ko jodi banao. Jodi ka wazan zyada → bhaari waale ko halke se badlo (right--). Kam → halke waale ko bhaari se badlo (left++). Har baar exactly ek hi samajhdaar move hai — yahi sorted ka jaadoo.
+
 ### 3Sum (LeetCode 15)
 - Sort first → duplicates are adjacent → easy to skip
 - Fix one number, Two Pointers on the rest → reduces to Two Sum
