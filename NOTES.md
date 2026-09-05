@@ -595,6 +595,36 @@ sum == target →  mil gaya
 
 **Hindi mein samjho:** Socho versions ki line hai — pehle sab theek (good), phir ek point ke baad sab kharab (bad). Tumhe **pehla kharab** version dhoondhna hai. `mid` check karo: kharab hai? Toh answer yahi ya isse pehle ho sakta hai → `right = mid` (`mid` ko mat chhodo, woh khud answer ho sakta hai). Theek hai? Toh answer aage hai → `left = mid + 1`. `left < right` use karo warna infinite loop. Real-life: doodh ki bottles ki line — kahaan se kharab milna shuru hua, wahi **pehli kharab bottle** dhoondhni hai.
 
+### Find Minimum in Rotated Sorted Array (LeetCode 153)
+
+**The problem:** Sorted array jo kahin se rotate hui hai — uska **minimum** dhoondo. Koi target nahi. `[6,7,0,1,2,3,4,5]` → `0`.
+
+**Core insight:** Rotation point = minimum. Aur **hamesha sirf EK half clean/sorted hota hai** (dono nahi!). Jahan **disorder** hai, wahin minimum chhupa hai — clean half mein minimum nahi ho sakta.
+
+**`nums[right]` se compare karo (LC 33 mein `nums[left]` se karte the):**
+```
+nums[mid] > nums[right]  →  disorder RIGHT mein hai → min udhar
+                            mid khud min nahi (woh bada hai) → left = mid + 1
+else                     →  mid..right clean hai → min mid pe ya uske LEFT mein
+                            mid KHUD min ho sakta hai → right = mid  (mid-1 NAHI!)
+```
+
+**`right = mid` kyun, `mid - 1` kyun nahi?** Wahi **First Bad Version** wali seekh — `mid` khud answer ho sakta hai, toh usse discard mat karo.
+
+**`return nums[left]` kyun?** `while (left < right)` tab rukta hai jab `left == right` — matlab **ek hi element bacha**. Aur poore loop mein minimum kabhi discard nahi hua (jab bhi mid ko phenka, tab pakka tha ki woh min nahi hai). Toh bacha hua element **majboori se** minimum hai. (`nums[right]` bhi likh sakte ho — dono same hain us waqt.)
+
+**Dry Run:** `nums = [6, 7, 0, 1, 2, 3, 4, 5]`
+```
+left=0, right=7, mid=3 → nums[3]=1 <= nums[7]=5  → right = 3    space: [6,7,0,1]
+left=0, right=3, mid=1 → nums[1]=7 >  nums[3]=1  → left  = 2    space: [0,1]
+left=2, right=3, mid=2 → nums[2]=0 <= nums[3]=1  → right = 2    space: [0]
+left == right = 2 → loop khatam → return nums[2] = 0 ✓
+```
+
+**Complexity:** O(log n) time (har step aadha space **phenka** — "aadha phenko = O(log n)"), O(1) space.
+
+**Note — purana 2025 wala solution:** classic template (`lo <= hi`, `nums[lo]` se compare, running `min` variable) — woh bhi sahi hai, par yeh Boundary version cleaner hai (koi extra variable nahi). Aur purane mein `(lo+hi)/2` tha → **overflow** risk; hamesha `left + (right-left)/2`.
+
 ### Search in Rotated Sorted Array (LeetCode 33)
 - Array is sorted but rotated at some pivot
 - Key insight: at any mid, **one half is always sorted**

@@ -43,7 +43,7 @@ A pattern is "done" only when you can:
 | 3   | Intervals + Heap     | 🟡         | Meeting Rooms II                          | 3      |
 | 4   | Two Pointers         | 🟢         | Valid Palindrome, Container With Most Water, 3Sum, Two Sum II | 4 ✅   |
 | 5   | Fast & Slow Pointers | 🟡         | Linked List Cycle, Linked List Cycle II, Reverse Linked List | 3 ✅   |
-| 6   | Binary Search        | 🟡         | Binary Search, First Bad Version, Search in Rotated Sorted Array | 4      |
+| 6   | Binary Search        | 🟢         | Binary Search, First Bad Version, Search in Rotated Sorted Array, Find Minimum in Rotated Sorted Array | 4 ✅   |
 | 7   | Prefix Sum           | 🟢         | Subarray Sum Equals K, Product of Array Except Self, Range Sum Query | 3 ✅   |
 | 8   | DFS / BFS            | 🟢         | Max Depth, Number of Islands, Level Order, Rotting Oranges, Max Area of Island | 5 ✅   |
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
@@ -89,6 +89,7 @@ A pattern is "done" only when you can:
 | 26  | Min Score of Path Between Cities (Daily)  | DFS / BFS        | Medium     | 🟡         | 2026-07-04 | FIRST real graph — adjacency list + BFS; insight: min edge in component; O(V+E) |
 | 27  | Range Sum Query — Immutable               | Prefix Sum       | Easy       | 🟢         | 2026-07-05 | Classic prefix array, logic first try; O(n) build → O(1) query; pattern → 🟢 |
 | 28  | Two Sum II (Sorted)                       | Two Pointers     | Easy       | 🟢         | 2026-07-05 | First-try logic, zero bugs; sorted → two pointers over HashMap; pattern → 🟢 |
+| 29  | Find Minimum in Rotated Sorted Array      | Binary Search    | Medium     | 🟢         | 2026-09-05 | Boundary template, first-try logic; mid-vs-right + right=mid; pattern → 🟢 |
 
 
 ---

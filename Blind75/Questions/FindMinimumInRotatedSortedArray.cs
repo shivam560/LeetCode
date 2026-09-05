@@ -33,4 +33,32 @@ public class FindMinimumInRotatedSortedArray
 
         return min;
     }
+
+    /// <summary>
+    ///     Boundary Search version (2026-09-05) — cleaner than the classic-template one above.
+    ///     Compare nums[mid] with nums[right] instead of nums[lo]:
+    ///       nums[mid] > nums[right]  -> disorder is to the RIGHT, min is there, and mid
+    ///                                   itself can't be the min -> left = mid + 1
+    ///       else                     -> mid..right is clean/sorted, so min is mid or to its
+    ///                                   LEFT. mid ITSELF may be the min -> right = mid (not mid-1),
+    ///                                   same insight as First Bad Version.
+    ///     Loop ends when left == right, i.e. one element left — and the min was never
+    ///     discarded, so that element IS the min. No running `min` variable needed.
+    ///     Time: O(log n) — half the space is thrown away each step. Space: O(1).
+    /// </summary>
+    public int FindMin(int[] nums)
+    {
+        int left = 0, right = nums.Length - 1;
+
+        while (left < right)
+        {
+            var mid = left + (right - left) / 2; // overflow-safe
+            if (nums[mid] > nums[right])
+                left = mid + 1;
+            else
+                right = mid;
+        }
+
+        return nums[left];
+    }
 }
