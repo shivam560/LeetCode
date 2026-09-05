@@ -989,6 +989,52 @@ return prev1;
 
 **Hindi mein samjho:** Seedhi 4 pe pahunchne ke raaste ginne hain? Toh dekho — 4 pe sirf 3 se ya 2 se aa sakte the. Toh 3 tak ke saare raaste (3) + 2 tak ke saare raaste (2) = 5. Har seedhi ka jawab **pichli do seedhiyon** se ban jaata hai. Aur chadhte waqt sirf pichli do yaad rakho — seedhi 1 ka hisaab seedhi 10 pe kaam nahi aata.
 
+### House Robber (LeetCode 198)
+
+**The problem:** Line mein ghar, har ghar mein paisa. **Adjacent (bagal wale) do ghar nahi loot sakte** (alarm!). Maximum kitna loot sakte ho?
+`[2,7,9,3,1]` → **12** (2+9+1)
+
+**⚠️ STATE ki definition — yahi asli kaam hai:**
+> **`dp[i]` = "ghar 0 se i tak mein maximum kitna loot sakta hoon"** — yeh **NAHI** kehta ki ghar `i` loota hi hai. Bas "yahan tak ka best."
+
+Yeh definition sab kuch aasaan kar deti hai. Har ghar pe sirf **do choice**:
+```
+dp[i] = Math.Max( nums[i] + dp[i-2],   dp[i-1] )
+                  └── loota ──┘        └ chhoda ┘
+```
+- **Loota:** `nums[i]` mila, `i-1` nahi le sakte → usse pehle tak ka best `dp[i-2]`
+- **Chhoda:** jo `i-1` tak best tha, wahi
+
+**Base cases:** `dp[0] = nums[0]` | `dp[1] = Math.Max(nums[0], nums[1])` (dono nahi le sakte — adjacent)
+
+**⚠️ Trap — "hamesha ek chhod ke" sochna GALAT hai:** `[5,1,1,5]` → best `5+5=10` hai (ghar 0 aur **3** — beech mein **do** ghar chhode!). Yeh apne aap handle ho jaata hai kyunki `dp[i-2]` khud ek "best-so-far" hai, na ki "ghar i-2 loota tha".
+
+**🎯 Climbing Stairs se BADA farak — jod vs max:**
+| Sawaal | Operation |
+|---|---|
+| "kitne **tareeke**?" (how many ways) | **jod (+)** — saare raaste gino |
+| "**maximum/minimum** kitna?" | **Math.Max / Math.Min** — best chuno |
+
+**Space O(1):** wahi sliding variables (`prev2` = dp[i-2], `prev1` = dp[i-1]) — bas `+` ki jagah `Math.Max`:
+```csharp
+int prev2 = nums[0], prev1 = Math.Max(nums[0], nums[1]);
+for (int i = 2; i < nums.Length; i++)
+{
+    int curr = Math.Max(nums[i] + prev2, prev1);
+    prev2 = prev1;   // slide
+    prev1 = curr;
+}
+return prev1;
+```
+
+**Complexity:** O(n) time, O(n) space (array) → **O(1)** optimized.
+
+**⚠️⚠️ MERA RECURRING BUG (do baar ho chuka — Climbing Stairs aur House Robber dono mein):**
+> Loop ke andar **fixed index** likh dena — `dp[2]` ya `nums[1]` — jabki `dp[i-1]`, `nums[i]` chahiye.
+> **RULE: recurrence ki har cheez `i` ke terms mein honi chahiye.** Loop chal raha hai, toh values bhi badalni chahiye.
+
+**Hindi mein samjho:** Chor gali mein khada hai, ghar `i` ke saamne. Do hi soch: *"yeh ghar lootun"* — toh bagal wala (i-1) chhodna padega, toh usse pehle tak ki kamai (`dp[i-2]`) mein aaj ka maal jodo. Ya *"yeh ghar chhod dun"* — toh jitna ab tak (`dp[i-1]`) kamaya wahi. Jo zyada ho, wahi lo. Har ghar pe yeh do-choice ka faisla, bas.
+
 ---
 
 ## Array of Arrays — int[][]

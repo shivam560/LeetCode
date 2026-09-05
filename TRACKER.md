@@ -49,7 +49,7 @@ A pattern is "done" only when you can:
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
 | 11  | Monotonic Stack      | 🟢         | Daily Temperatures, Next Greater Element I, Next Greater Element II | 3 ✅   |
-| 12  | Dynamic Programming  | 🟡         | Climbing Stairs                           | 8      |
+| 12  | Dynamic Programming  | 🟡         | Climbing Stairs, House Robber             | 8      |
 | 13  | Topological Sort     | 🔴         | —                                         | 2      |
 | 14  | Union Find           | 🔴         | —                                         | 2      |
 
@@ -91,6 +91,7 @@ A pattern is "done" only when you can:
 | 28  | Two Sum II (Sorted)                       | Two Pointers     | Easy       | 🟢         | 2026-07-05 | First-try logic, zero bugs; sorted → two pointers over HashMap; pattern → 🟢 |
 | 29  | Find Minimum in Rotated Sorted Array      | Binary Search    | Medium     | 🟢         | 2026-09-05 | Boundary template, first-try logic; mid-vs-right + right=mid; pattern → 🟢 |
 | 30  | Climbing Stairs                           | DP               | Easy       | 🟢         | 2026-09-05 | FIRST DP! Derived recurrence himself from hand-counted cases; + O(1) space version |
+| 31  | House Robber                              | DP               | Medium     | 🟢         | 2026-09-05 | 2nd DP; base cases + recurrence correct solo; "ways→sum, max→Math.Max" |
 
 
 ---
