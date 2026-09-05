@@ -918,6 +918,79 @@ public int MaxDepth(TreeNode root)
 
 ---
 
+## Pattern 10: Dynamic Programming (DP)
+
+**DP kya hai (naam bhoolo, idea samjho):**
+> **"Jo pehle ek baar calculate kar chuke ho, use dobara mat karo — likh ke rakh lo."**
+
+Bas yahi hai. Naam darawna hai, idea simple.
+
+**Real-life analogy:** "9 × 7?" — tu 9 saat baar jodta nahi, tujhe **yaad** hai 63. Ek baar calculate kiya, phir yaad rakh liya. **Yahi DP hai.**
+
+**Signal → Tool (DP kab?):** "kitne tareeke / how many ways", "minimum/maximum cost", "kya yeh possible hai", aur problem **chhote same-type subproblems** mein tootti ho jo **baar-baar repeat** hoon.
+
+**DP ka 3-step recipe (har DP problem pe yahi lagao):**
+1. **Chhote cases HAATH SE gino** (n=1,2,3,4...) — sabse zaroori step, yahin se pattern dikhta hai
+2. **Recurrence dhoondo — ULTA socho:** "main yahan (state i pe) **kahan se** aa sakta tha?" Un sab possibilities ko **jodo** (ya min/max lo, problem ke hisaab se)
+3. **Base cases** pakdo (sabse chhota case jiska jawab seedha pata ho)
+
+**Do styles:**
+- **Bottom-up (tabulation)** — loop se chhote se bade tak `dp[]` array bharo. Yeh default rakho, simple hai.
+- **Top-down (memoization)** — recursion + ek cache, taaki repeat calls na hoon.
+
+**Space optimization (classic trick):** Agar `dp[i]` ko sirf **pichli k values** chahiye, toh poora array mat rakho — bas `k` variables rakho aur unhe **aage khiskao**. O(n) → O(1). Interview mein yeh bolna bada plus point hai.
+
+### Climbing Stairs (LeetCode 70) — pehla DP
+
+**The problem:** `n` seedhiyan, ek baar mein 1 ya 2 step. Kitne alag tareeke upar pahunchne ke?
+
+**Haath se gino:**
+```
+n=1 → 1                        → 1 tareeka
+n=2 → 1+1, 2                   → 2 tareeke
+n=3 → 1+1+1, 1+2, 2+1          → 3 tareeke
+n=4 → 1+1+1+1, 2+1+1, 1+2+1, 1+1+2, 2+2  → 5 tareeke
+```
+
+**Recurrence (ULTA socho):** Seedhi `i` pe khade ho — **kahan se aaye?** Sirf `i-1` se (1 step) ya `i-2` se (2 steps). Aur koi option nahi.
+- `i-1` tak ke saare tareeke + aage 1 step → sab valid raaste
+- `i-2` tak ke saare tareeke + aage 2 steps → aur valid raaste
+- Dono **overlap nahi** karte (ek 1-step pe khatam, doosra 2-step pe) → **JODO**
+
+> **`dp[i] = dp[i-1] + dp[i-2]`** — yeh **Fibonacci** hai! (1, 2, 3, 5, 8, 13...)
+
+**Base cases:** `dp[1] = 1`, `dp[2] = 2`
+
+**Plain recursion kyun nahi:** `Ways(n-1) + Ways(n-2)` seedha recursion mein likho toh **exponential** — `Ways(5)` ke tree mein hi `Ways(3)` do baar, `Ways(2)` teen baar calculate hota hai. n=50 pe arbon calls. **Isiliye DP.**
+
+**Bottom-up (O(n) time, O(n) space):**
+```csharp
+if (n == 1) return 1;              // guard — warna dp[2] out of range
+int[] dp = new int[n + 1];
+dp[1] = 1; dp[2] = 2;
+for (int i = 3; i <= n; i++)
+    dp[i] = dp[i - 1] + dp[i - 2];
+return dp[n];
+```
+
+**Space-optimized (O(1) space):** sirf pichli **do** values chahiye — poora array bekaar. Do variables rakho, khiskao:
+```csharp
+int prev2 = 1, prev1 = 2;
+for (int i = 3; i <= n; i++)
+{
+    int curr = prev1 + prev2;
+    prev2 = prev1;    // slide
+    prev1 = curr;
+}
+return prev1;
+```
+
+**⚠️ Common bug (khud ki thi):** loop mein `dp[2]` jaisi **fixed** value use karna (`dp[i-1]`, `dp[i-2]` chahiye — `i` ke saath badalne waali), ya `dp[i]` ko **padhna** jabki woh abhi bhara hi nahi (0 hai). Recurrence hamesha `i` ke terms mein likho.
+
+**Hindi mein samjho:** Seedhi 4 pe pahunchne ke raaste ginne hain? Toh dekho — 4 pe sirf 3 se ya 2 se aa sakte the. Toh 3 tak ke saare raaste (3) + 2 tak ke saare raaste (2) = 5. Har seedhi ka jawab **pichli do seedhiyon** se ban jaata hai. Aur chadhte waqt sirf pichli do yaad rakho — seedhi 1 ka hisaab seedhi 10 pe kaam nahi aata.
+
+---
+
 ## Array of Arrays — int[][]
 
 ```csharp
