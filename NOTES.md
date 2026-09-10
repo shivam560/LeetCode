@@ -918,6 +918,57 @@ public int MaxDepth(TreeNode root)
 
 ---
 
+## Recursion — Foundations (2026-09-06 session)
+
+**Recursion samajhne ka asli tareeka — "LEAP OF FAITH" 🙏**
+
+Zyadatar log isliye atakte hain kyunki woh **poori chain trace** karne lagte hain ("yeh call woh call karega, phir woh..."). Dimaag ghoom jaata hai. Ulta karo:
+
+> **Maan lo chhota kaam kisi aur ne pehle hi kar diya hai. Tumhe sirf EK KADAM sochna hai.**
+
+**Line wali analogy:** Lambi line mein khade ho, jaanna hai "kitne log hain?" Tum poori line nahi ginte — bas aage wale se poochte ho *"tere aage kitne?"* Woh bolta hai "47" → tum bolte ho **"48"** (47 + main). Tumhe **jaanne ki zaroorat hi nahi** ki 47 kaise nikla. Sabse aage wale ne kaha hoga "mere aage koi nahi = 0" — **wahi base case hai.**
+
+### Har recursion ke 3 SAWAAL (yeh tool har jagah lagao)
+
+```
+1. MERA EK KADAM kya hai?      (apni value dena / ek pair compare karna / 2 choices)
+2. KIS SE POOCHUNGA?           (baaki POORA hissa — ek call mein, leap of faith)
+3. KAB RUKUNGA? (base case)    ("kuch bacha hi nahi" / "jawab mil gaya")
+```
+
+**⚠️ Sabse common galti:** "agla element" sochna (iterative soch). Recursion mein tum **"baaki poora hissa"** maangte ho, ek call mein — jaise line wale se poora count maanga tha, sirf usko nahi gina.
+
+### Mechanical rules (aaj ki galtiyon se)
+
+- **Har raaste pe `return`** — recursive call ka jawab bhi `return` karna hai. `IsPalindrome(...)` likhna aur `return IsPalindrome(...)` likhna alag hai — bina return ke jawab **gum** ho jaata hai.
+- **⚠️ INDEX ≠ VALUE (mera recurring bug):** `left != right` index compare karta hai; characters chahiye toh **`s[left] != s[right]`**. Wahi galti Monotonic Stack mein bhi hui thi (`stack.Peek() < nums[i]` vs `nums[stack.Peek()] < nums[i]`). **Rule: index se value chahiye toh `array[index]` likho.**
+- **Base case ka ORDER:** bounds/cross check **pehle**, phir data access. Warna out-of-range crash.
+
+### Drill 1 — Array sum (linear recursion, 1 call)
+```csharp
+public int Sum(int[] nums, int i)
+{
+    if (i == nums.Length) return 0;        // kuch bacha hi nahi
+    return nums[i] + Sum(nums, i + 1);     // meri value + baaki poora hissa
+}
+```
+`[3,7,2,8]` → `3 + (7 + (2 + (8 + 0))) = 20`
+
+### Drill 2 — Palindrome (2 stopping conditions, bool return)
+```csharp
+public bool IsPalindrome(string s, int left, int right)
+{
+    if (left >= right) return true;               // pointers cross → palindrome
+    if (s[left] != s[right]) return false;        // mismatch → nahi
+    return IsPalindrome(s, left + 1, right - 1);  // andar wale hisse pe bharosa
+}
+```
+Ek pair khud check karo, **andar ka poora hissa** recursion pe chhod do.
+
+### Drill 3 — Unique Paths (branching, 2 calls) → yeh Pattern 10 mein detail hai
+
+---
+
 ## Pattern 10: Dynamic Programming (DP)
 
 **DP kya hai (naam bhoolo, idea samjho):**
@@ -1034,6 +1085,97 @@ return prev1;
 > **RULE: recurrence ki har cheez `i` ke terms mein honi chahiye.** Loop chal raha hai, toh values bhi badalni chahiye.
 
 **Hindi mein samjho:** Chor gali mein khada hai, ghar `i` ke saamne. Do hi soch: *"yeh ghar lootun"* — toh bagal wala (i-1) chhodna padega, toh usse pehle tak ki kamai (`dp[i-2]`) mein aaj ka maal jodo. Ya *"yeh ghar chhod dun"* — toh jitna ab tak (`dp[i-1]`) kamaya wahi. Jo zyada ho, wahi lo. Har ghar pe yeh do-choice ka faisla, bas.
+
+### Min Cost Climbing Stairs (LeetCode 746)
+
+**Problem (English):** `cost[i]` is the cost of the `i`th step. Once you **pay** the cost, you can climb one or two steps. You may start at index `0` **or** index `1`. Return the min cost to reach the **top of the floor**.
+
+**⚠️ Do traps jo sabko phasate hain:**
+1. **"Top" = index `n`** (aakhri step ke EK AAGE), array ke bahar. `[10,15,20]` mein top index **3** hai.
+2. **Start FREE hai** — index 0 ya 1 pe bina kuch diye khade ho sakte ho.
+
+**⚠️⚠️ ARRIVE vs LEAVE — yahi poori problem ka dil hai (mujhe do baar confuse kiya):**
+| | matlab |
+|---|---|
+| **`dp[i]`** | step `i` tak **POHUNCHNE** ka min kharcha |
+| **`cost[i]`** | step `i` se **NIKALNE** ka ticket |
+
+**Metro analogy 🚇:** platform pe **khade rehna FREE** hai; **train mein baithne** (aage badhne) ke liye ticket lagta hai. Isliye `dp[0] = dp[1] = 0` (free mein khade ho gaye), aur `cost[0]`/`cost[1]` tabhi lagta hai jab **nikloge** — jo recurrence ke andar hota hai.
+
+**Recurrence:**
+```
+dp[0] = 0, dp[1] = 0                       ← free start
+dp[i] = Math.Min(dp[i-1] + cost[i-1],      ← ek kadam peeche se aaya
+                 dp[i-2] + cost[i-2])      ← do kadam peeche se aaya
+answer = dp[n]                             ← n = cost.Length (TOP)
+```
+"minimum cost" → **Math.Min** (vs "how many ways" → sum). Padhne ka tareeka: *"pichle step tak ka kharcha + wahan se nikalne ka ticket"* — dono raaste, chhota wala rakho.
+
+**Dry Run:** `cost = [10, 15, 20]`
+```
+dp[0] = 0                                          (free start)
+dp[1] = 0                                          (free start)
+dp[2] = Min(dp[1]+cost[1], dp[0]+cost[0])
+      = Min(0+15, 0+10) = 10
+dp[3] = Min(dp[2]+cost[2], dp[1]+cost[1])
+      = Min(10+20, 0+15) = 15   ✅ ← TOP, answer
+```
+Dhyan de — best raasta index 1 se shuru karke seedha top pe kood gaya, `cost[0]=10` **diya hi nahi**. Free start ka yahi faayda.
+
+**⚠️ Code traps:** `dp` ka size **`n+1`** hona chahiye, aur loop **`i <= cost.Length`** tak (`<` likha toh `dp[n]` kabhi bharta hi nahi, `0` return ho jaata hai).
+
+**Complexity:** O(n) time, O(n) space (do sliding variables se O(1) ho sakta hai).
+
+### Unique Paths (LeetCode 62) — pehla TOP-DOWN DP (memoization)
+
+**Problem (English):** Robot at `grid[0][0]` must reach `grid[m-1][n-1]`, moving only **down** or **right**. Return the number of unique paths.
+
+**Recursion pehle (3 sawaal):**
+1. **Ek kadam:** cell `(r,c)` pe **do choices** — neeche ya right
+2. **Kis se poochunga:** `paths(r+1, c)` aur `paths(r, c+1)` — dono
+3. **Kab rukunga:**
+   - **grid se bahar** (`r >= m || c >= n`) → **0** (dead end, raasta invalid tha)
+   - **destination pe** (`r == m-1 && c == n-1`) → **1** (pahunch gaye = ek poora raasta)
+
+**Jod, Max NAHI:** "kitne **ways**" → neeche ke raaste **aur** right ke raaste, dono valid hain, sab ginne hain → `+`. (Wahi ways→sum, max→Math.Max rule.)
+
+```
+paths(r,c) = paths(r+1, c) + paths(r, c+1)
+```
+
+**Problem — repeated work:** 2×3 grid mein hi `Paths(1,1)` aur `Paths(1,2)` **do-do baar** calculate hote hain. Bade grid pe exponential. (Bilkul Climbing Stairs wali dikkat.)
+
+**Fix — MEMOIZATION (Top-Down DP) — 3 extra line:**
+```csharp
+private Dictionary<(int, int), int> memo = new Dictionary<(int, int), int>();
+
+public int Paths(int r, int c, int m, int n)
+{
+    if (r >= m || c >= n) return 0;
+    if (r == m - 1 && c == n - 1) return 1;
+
+    if (memo.ContainsKey((r, c))) return memo[(r, c)];    // 1. cache check
+    int result = Paths(r + 1, c, m, n) + Paths(r, c + 1, m, n);   // 2. compute
+    memo[(r, c)] = result;                                 // 3. store
+    return result;
+}
+```
+
+**Memoization ka universal pattern:** base cases → **check cache** → compute → **store** → return. Bas.
+
+**Key kaise chuno:** jo bhi cheezein state ko **unique** banati hain. Yahan `(r, c)` — do numbers, toh **tuple key**. Climbing Stairs mein sirf `i` tha, toh simple array kaafi tha.
+
+**DP ke do styles (ab dono kar liye):**
+| Style | Kaise | Kahan kiya |
+|---|---|---|
+| **Bottom-up** (tabulation) | loop se chhote→bade `dp[]` bharo | Climbing Stairs, House Robber |
+| **Top-down** (memoization) | recursion + cache | **Unique Paths** |
+
+**Complexity:** O(m×n) time (har cell ek baar), O(m×n) space (cache) + O(m+n) call stack.
+
+**⚠️ Real-world note:** `memo` instance field hai — same object pe alag `m,n` ke saath dobara call karoge toh **purana cache galat jawab** dega (`(r,c)` ka matlab alag grid mein alag hai). LeetCode pe har test naya object banata hai toh chalta hai; production mein cache ko input ke saath scope karo.
+
+**Hindi mein samjho:** Robot har cell pe do raaste dekh sakta hai — neeche ya right. Dono taraf se jitne raaste milte hain, **sab jodo** (kisi ek ko chunna nahi hai — sab valid hain). Grid se bahar nikle toh woh raasta bekaar (0), destination pe pahunche toh ek raasta poora (1). Aur ek baar kisi cell ka jawab nikal liya, toh **diary mein likh lo** — dobara wahan aao toh seedha diary dekho, phir se poora hisaab mat karo.
 
 ---
 
