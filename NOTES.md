@@ -1,5 +1,25 @@
 # DSA Session Notes — Revision Guide
 
+## Latest Session — 2026-09-15 (IST): Coin Change Revision
+
+**Status:** LC 322 bottom-up and top-down practiced with guidance; independent mastery is not yet established. This session revised one problem in two styles, not two new problems. Reference implementations are saved below in these notes; no standalone Coin Change source file or test run was added in this update.
+
+**What Shivam recalled:** zero amount needs zero coins; impossible results must also be cached; returning inside the coin loop stops after the first iteration; time O(A × C), space O(A). The final bottom-up attempt included initialization, base case, traversal and transition, with syntax corrections needed.
+
+**What needed help:** connecting the chosen coin to `+1`; subtracting the coin in the recursive call; checking `-1` before adding; distinguishing impossible from zero coins; assigning the minimum back into `dp`; C# spelling/casing, `foreach`, `>=`, loop increment and ternary syntax. Shivam clarified that the approach he wanted to revise was **bottom-up**, not top-down; do not record that clarification as evidence he forgot top-down.
+
+### Learning Method Going Forward
+
+- Goal: Google/top-tech interview preparation. Track evidence of readiness, not a hiring guarantee or a problem-count target. Age anxiety should receive honest support, not promises or shame.
+- Start each session by checking the actual date/time. Begin with 5–10 minutes of closed-notes recall; after a gap, resume from evidence rather than restarting everything.
+- Give an English problem statement, explain basics in Hinglish, and code in C#. Ask one question at a time, but allow an uninterrupted independent attempt before supplying small hints.
+- Fade help: guided example → independent reconstruction → similar unseen problem → later mixed-pattern practice without announcing the pattern. Repeating tiny prompted answers alone is not enough.
+- Record assistance explicitly: guided / recalled with hint / independently solved. Understanding an explanation, recalling a formula and solving an unseen problem are different milestones.
+- Use adjustable review gaps around 1, 3, 7, 14 and 30 days. These are practice targets, not a guarantee of retention. After a missed session, resume without punishment or doubling the workload.
+- Measure progress through delayed recall, reasoning, code, edge cases and complexity—not only number of questions. The old rigid daily schedule remains paused.
+
+**Next session:** start with a short closed-notes Coin Change bottom-up attempt, without displaying the recurrence first. Ask for the state meaning, initialization, loops, impossible result and complexity. Dry-run amount 0 and an unreachable amount. Give the smallest hint only after an attempt; record what was independent. If stable, move to a similar unseen problem instead of repeating the same guided drill indefinitely.
+
 ---
 
 ## Big O Complexity
@@ -1086,6 +1106,41 @@ return prev1;
 
 **Hindi mein samjho:** Chor gali mein khada hai, ghar `i` ke saamne. Do hi soch: *"yeh ghar lootun"* — toh bagal wala (i-1) chhodna padega, toh usse pehle tak ki kamai (`dp[i-2]`) mein aaj ka maal jodo. Ya *"yeh ghar chhod dun"* — toh jitna ab tak (`dp[i-1]`) kamaya wahi. Jo zyada ho, wahi lo. Har ghar pe yeh do-choice ka faisla, bas.
 
+### Coin Change (LeetCode 322) — "minimum" + unbounded flavour
+
+**Problem (English):** Given coins of different denominations and a total `amount`, return the **fewest number of coins** needed to make up that amount. If it cannot be made, return `-1`. You may use each coin **unlimited** times.
+
+**State:** `dp[i]` = **minimum coins needed to make amount `i`**
+**Base:** `dp[0] = 0` (0 amount banane ke liye 0 coins)
+**Recurrence:** har coin ke liye jo fit hota ho (`coin <= i`):
+```
+dp[i] = Math.Min(dp[i], dp[i - coin] + 1)
+```
+`+1` = jo coin abhi use kiya, woh ginna hai.
+
+**⚠️ Sabse tricky hissa — `amount + 1` se fill karna ("impossible" sentinel):**
+1. **Answer kabhi `amount` se zyada nahi ho sakta** (worst case sab 1-value coins → `amount` coins). Toh `amount+1` ek aisi value hai jo **kabhi valid answer nahi** — perfect "unreachable" marker.
+2. **`int.MaxValue` kyun NAHI:** `dp[i-coin] + 1` karte hi **overflow** ho jaayega (MaxValue + 1 = negative) → galat answer. 💥
+
+End mein: `dp[amount]` abhi bhi sentinel hai → **`-1`** return karo.
+*(Industry tip: `dp[amount] > amount` check karna `== amount+1` se zyada defensive hai.)*
+
+**⚠️ Greedy kyun FAIL karta hai:** amount `6`, coins `[4,1,3]` → greedy pehle `4` uthaega, phir `1+1` → **3 coins**. Par `3+3` = **2 coins** better hai. "Sabse bada coin pehle" local faisla hai, globally optimal nahi. **Isliye DP.**
+
+**Loop structure:**
+```csharp
+for (int currentAmount = 1; currentAmount <= amount; currentAmount++)
+    foreach (int coin in coins)
+        if (currentAmount - coin >= 0)            // coin fit hota hai?
+            dp[currentAmount] = Math.Min(dp[currentAmount],
+                                         dp[currentAmount - coin] + 1);
+```
+*(Naming tip: `currentAmount` likhna `i` se behtar hai — readable, aur index-vs-value confusion rokta hai.)*
+
+**Complexity:** O(A × C) time (A = amount, C = coins ki ginti), O(A) space.
+
+**Hindi mein samjho:** Har amount ke liye poochho — *"is amount tak pahunchne ka sabse sasta tareeka kya hai?"* Har coin try karo: agar main yeh coin use karu, toh bacha hua amount (`i - coin`) banane mein jitne coins lage the, usme **ek aur** jod do. Sabse kam wala rakho. Aur shuru mein sab jagah **"impossible"** likh do — jo jagah aakhir tak "impossible" hi rahi, matlab wahan pahuncha hi nahi ja sakta.
+
 ### Min Cost Climbing Stairs (LeetCode 746)
 
 **Problem (English):** `cost[i]` is the cost of the `i`th step. Once you **pay** the cost, you can climb one or two steps. You may start at index `0` **or** index `1`. Return the min cost to reach the **top of the floor**.
@@ -1176,6 +1231,109 @@ public int Paths(int r, int c, int m, int n)
 **⚠️ Real-world note:** `memo` instance field hai — same object pe alag `m,n` ke saath dobara call karoge toh **purana cache galat jawab** dega (`(r,c)` ka matlab alag grid mein alag hai). LeetCode pe har test naya object banata hai toh chalta hai; production mein cache ko input ke saath scope karo.
 
 **Hindi mein samjho:** Robot har cell pe do raaste dekh sakta hai — neeche ya right. Dono taraf se jitne raaste milte hain, **sab jodo** (kisi ek ko chunna nahi hai — sab valid hain). Grid se bahar nikle toh woh raasta bekaar (0), destination pe pahunche toh ek raasta poora (1). Aur ek baar kisi cell ka jawab nikal liya, toh **diary mein likh lo** — dobara wahan aao toh seedha diary dekho, phir se poora hisaab mat karo.
+
+---
+
+### Coin Change (LeetCode 322) — Bottom-Up and Top-Down
+
+**Problem (English):** Given positive integer coin denominations and a non-negative target amount, return the minimum number of coins needed to make that amount. Each denomination can be used unlimited times. Return `-1` if it is impossible.
+
+**Hindi mein:** Diye hue sikko se exact amount banana hai, aur sabse kam sikke lene hain. Coin ki **value** aur coins ki **count** alag hain: ₹3 ka ek sikka amount ko 3 se ghataata hai, count mein sirf 1 jodta hai. `[1,3,4]`, amount 6 mein largest-first `4+1+1` se 3 coins lagte hain, lekin `3+3` se 2; isliye sirf biggest coin lena reliable nahi hai.
+
+**State:** `dp[currentAmount]` = that exact amount banane ka minimum coin count, not money collected. In top-down, `Solve(remaining)` returns that minimum count or `-1` if impossible.
+
+**One choice:** coin choose kiya → bacha amount = `currentAmount - coin`. Us amount ka minimum count + **1 chosen coin** is one candidate. Har fitting coin try karke minimum lo.
+
+#### Bottom-Up: Smaller Answers First
+
+- `dp[0] = 0`: ₹0 ke liye zero coins. This is different from Unique Paths, where reaching the destination counts as one completed path.
+- Initialize other entries to `amount + 1`, an impossible marker. With positive integer coins, any valid solution uses at most `amount` coins. Do not use `0` for impossible: it means zero coins suffice.
+- Fill amounts from 1 upward. Positive coins make `currentAmount - coin` smaller, so its answer is already calculated.
+- Only try `coin <= currentAmount`, including equality. Check the **current subproblem**, not the final target.
+- An impossible predecessor gives marker + 1, which cannot improve the current value (at most the marker). Thus an unreachable entry stays at the marker.
+
+```csharp
+public int CoinChange(int[] coins, int amount)
+{
+    int[] dp = new int[amount + 1];
+    Array.Fill(dp, amount + 1);
+    dp[0] = 0;
+
+    for (int currentAmount = 1; currentAmount <= amount; currentAmount++)
+    {
+        foreach (int coin in coins)
+        {
+            if (currentAmount - coin >= 0)
+            {
+                dp[currentAmount] = Math.Min(
+                    dp[currentAmount], dp[currentAmount - coin] + 1);
+            }
+        }
+    }
+
+    return dp[amount] == amount + 1 ? -1 : dp[amount];
+}
+```
+
+**Dry run:** coins `[2,3]`, target 4 → marker 5.
+
+| Amount | Stored minimum | Reason |
+|---|---|---|
+| 0 | 0 | No coins needed |
+| 1 | 5 | Impossible; neither coin fits |
+| 2 | 1 | `dp[0] + 1` using coin 2 |
+| 3 | 1 | Coin 3 gives `dp[0] + 1`; coin 2 leaves impossible amount 1 |
+| 4 | 2 | Coin 2 gives `dp[2] + 1 = 2`; coin 3 gives `dp[1] + 1 = 6`, which does not improve it |
+
+**Edge cases:** amount 0 → return 0 without entering the loop. Coins `[2]`, amount 3 → `dp = [0,4,1,4]`, return -1.
+
+#### Top-Down: Ask the Smaller Question, Then Return
+
+Start at the target and recursively ask about the remainder. Parent waits for the child answer. With coins `[2,3]`, `Solve(7)` choosing coin 3 asks `Solve(4)`. That returns 2 coins (`2+2`); this option therefore costs **2+1 = 3 coins**, not 1. Compare all options before returning.
+
+```csharp
+public int CoinChangeTopDown(int[] coins, int amount)
+{
+    var memo = new Dictionary<int, int>();
+    return Solve(coins, amount, memo);
+}
+
+private int Solve(int[] coins, int remaining, Dictionary<int, int> memo)
+{
+    if (remaining == 0) return 0;
+    if (memo.ContainsKey(remaining)) return memo[remaining];
+
+    int best = int.MaxValue;
+    foreach (int coin in coins)
+    {
+        if (coin <= remaining)
+        {
+            int smallAnswer = Solve(coins, remaining - coin, memo);
+            if (smallAnswer != -1)
+            {
+                best = Math.Min(best, smallAnswer + 1);
+            }
+        }
+    }
+
+    int answer = best == int.MaxValue ? -1 : best;
+    memo[remaining] = answer;
+    return answer;
+}
+```
+
+**Important:** check `-1` **before** `+1`; otherwise an impossible result becomes 0. Cache impossible answers too: knowing “cannot be made” avoids repeating failed work. Store and return **after** the loop, so every coin gets a chance. The dictionary is fresh for each public call; `remaining` is sufficient as its key because the coin set stays fixed during that call.
+
+| Approach | Evaluation order | Time | Extra space |
+|---|---|---|---|
+| Bottom-up | Loop from small amounts to target; dependencies already ready | O(A × C) | O(A) array; no recursion stack |
+| Top-down | Start at target, recurse into needed smaller amounts, cache results | O(A × C) worst case | O(A) memo + O(A) stack = O(A) |
+
+Here A is the target amount and C is the number of denominations; dictionary operations are expected O(1). With coin 1, the deepest recursive chain can be `Solve(A) → ... → Solve(0)`: A+1 active helper calls, still O(A). Memoization avoids repeated calculation but does not remove this stack depth.
+
+**C# self-check:** `int.MaxValue`, not `int.Max`; `foreach (int coin in coins)`; `currentAmount++`, not an unrelated `i++`; `>=` is one operator; casing must match (`smallAnswer`); `Math.Min` returns a value that must be assigned; ternary format is `condition ? trueValue : falseValue`; statements end with semicolons.
+
+**English interview summary:** “Bottom-up starts with the answer for zero and builds answers in increasing amount order. For each amount, I try every fitting coin and minimize one plus the answer for the remainder. Top-down starts with the target, recursively solves those remainders, and caches both valid and impossible results.”
 
 ---
 

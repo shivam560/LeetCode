@@ -49,7 +49,7 @@ A pattern is "done" only when you can:
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
 | 11  | Monotonic Stack      | 🟢         | Daily Temperatures, Next Greater Element I, Next Greater Element II | 3 ✅   |
-| 12  | Dynamic Programming  | 🟡         | Climbing Stairs, House Robber, Unique Paths, Min Cost Climbing Stairs | 8      |
+| 12  | Dynamic Programming  | 🟡         | Climbing Stairs, House Robber, Unique Paths, Min Cost Climbing Stairs, Coin Change | 8      |
 | 13  | Topological Sort     | 🔴         | —                                         | 2      |
 | 14  | Union Find           | 🔴         | —                                         | 2      |
 
@@ -94,6 +94,7 @@ A pattern is "done" only when you can:
 | 31  | House Robber                              | DP               | Medium     | 🟢         | 2026-09-05 | 2nd DP; base cases + recurrence correct solo; "ways→sum, max→Math.Max" |
 | 32  | Unique Paths                              | DP (top-down)    | Medium     | 🟢         | 2026-09-06 | Recursion foundations session; recursion first try, then memoization |
 | 33  | Min Cost Climbing Stairs                  | DP               | Easy       | 🟡         | 2026-09-11 | arrive-vs-leave confusion (dp[i] vs cost[i]) — clicked after concrete walkthrough; late-night session |
+| 34  | Coin Change                               | DP               | Medium     | 🟢         | 2026-09-15 | Self-studied then explained all 5 points + greedy counter-example; code first try, zero bugs |
 
 
 ---
