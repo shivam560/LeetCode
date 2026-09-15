@@ -1141,6 +1141,41 @@ for (int currentAmount = 1; currentAmount <= amount; currentAmount++)
 
 **Hindi mein samjho:** Har amount ke liye poochho — *"is amount tak pahunchne ka sabse sasta tareeka kya hai?"* Har coin try karo: agar main yeh coin use karu, toh bacha hua amount (`i - coin`) banane mein jitne coins lage the, usme **ek aur** jod do. Sabse kam wala rakho. Aur shuru mein sab jagah **"impossible"** likh do — jo jagah aakhir tak "impossible" hi rahi, matlab wahan pahuncha hi nahi ja sakta.
 
+**Top-down version (same problem, ulta raasta):**
+```csharp
+if (amount == 0) return 0;
+if (memo.ContainsKey(amount)) return memo[amount];
+
+int best = int.MaxValue;
+foreach (int coin in coins)
+    if (amount - coin >= 0)                       // invalid call banao hi mat
+    {
+        int small = CoinChangeTopDown(coins, amount - coin);
+        if (small >= 0) best = Math.Min(best, small + 1);   // sirf valid results
+    }
+
+best = best == int.MaxValue ? -1 : best;
+memo[amount] = best;                              // -1 bhi cache karo!
+return best;
+```
+**⚠️ Trap:** `Math.Min` seedha raw results pe mat lagao — `-1` ("impossible") har Min jeet jayega. Aur `-1 + 1 = 0` → code samjhega "0 coins mein ban gaya" — **silent wrong answer.** Isliye `if (small >= 0)` guard zaroori hai.
+
+### DP: Top-Down vs Bottom-Up — kaunsa kab?
+
+| | **Top-Down** (memoization) | **Bottom-Up** (tabulation) |
+|---|---|---|
+| **Pehchano** | recursion + cache | `for` loop + `dp[]` array |
+| **Direction** | goal se neeche subproblems tak | chhote cases se upar answer tak |
+| **Sochne mein** | **aasaan** (recurrence likho, cache laga do) | zyada planning (order sochna padta) |
+| **Speed** | thoda slow (recursion overhead) | **tez** |
+| **Space** | cache + **call stack** | sirf table |
+| **Risk** | deep recursion → **StackOverflow** | koi nahi |
+| **Faayda** | sirf **zaroori** states compute hoti hain | sab compute hoti hain |
+
+**Interview line:** pehle top-down bolo (soch dikhti hai), phir *"and I can convert this to bottom-up to avoid the recursion stack"* — dono aana dikhta hai. 🎯
+
+**⚠️ Base cases dono mein ALAG dikhte hain:** bottom-up mein `dp[0] = 0` + sentinel fill; top-down mein `amount == 0 → 0` + invalid input ka guard. Same logic, alag shakal.
+
 ### Min Cost Climbing Stairs (LeetCode 746)
 
 **Problem (English):** `cost[i]` is the cost of the `i`th step. Once you **pay** the cost, you can climb one or two steps. You may start at index `0` **or** index `1`. Return the min cost to reach the **top of the floor**.

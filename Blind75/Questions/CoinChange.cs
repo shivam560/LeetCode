@@ -44,4 +44,39 @@ public class CoinChange
 
         return dp[amount] == amount + 1 ? -1 : dp[amount];
     }
+
+    private Dictionary<int, int> memo = new Dictionary<int, int>();
+
+    // TOP-DOWN (recursion + memoization) — same problem, opposite direction.
+    // Base case: amount == 0 -> 0 coins.
+    // Instead of an `amount < 0` base case, guard BEFORE recursing with
+    // `amount - coin >= 0` so the invalid call is never made at all.
+    // Can't use Math.Min directly over raw results: -1 means "impossible" and would
+    // win every Min. So track `best` and only fold in results that are >= 0.
+    // Storing -1 in the memo matters too — otherwise impossible amounts get recomputed.
+    //
+    // Caveat: the memo key is only `amount`, but the answer also depends on `coins`.
+    // Fine on LeetCode (fresh object per test); in production, scope the cache to coins.
+    //
+    // Time: O(A * C) | Space: O(A) cache + O(A) recursion stack
+    public int ChangeTopDown(int[] coins, int amount)
+    {
+        if (amount == 0) return 0;
+        if (memo.ContainsKey(amount)) return memo[amount];
+
+        int best = int.MaxValue;
+        foreach (int coin in coins)
+        {
+            if (amount - coin >= 0)
+            {
+                int small = ChangeTopDown(coins, amount - coin);
+                if (small >= 0)                      // only usable if that path worked
+                    best = Math.Min(best, small + 1);
+            }
+        }
+
+        best = best == int.MaxValue ? -1 : best;
+        memo[amount] = best;
+        return best;
+    }
 }
