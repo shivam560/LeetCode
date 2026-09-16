@@ -1,5 +1,14 @@
 # DSA Interview Prep — Progress Tracker
 
+## Current assessment — 2026-09-17
+
+Use [LEARNING_PLAN.md](LEARNING_PLAN.md) for adaptive coaching, roadmap, assistance levels, recall dates, and the latest handoff. Historical green labels below do not establish current retention; verify with delayed independent attempts.
+
+- Word Break: top-down and bottom-up practiced with extensive guidance; correct bottom-up reconstruction observed. Independent delayed recall and transfer are not yet assessed; no execution/acceptance verified here.
+- Next: a fresh, stable top-down example narrated without hints after rest. Repair loop/child-call confusion if it recurs; do not advance to LIS merely because guided answers are correct.
+- Teaching adjustment: complete worked traces when confused, followed by larger independent attempts; fewer repeated fill-in-the-blank or yes/no prompts.
+- Current record: 34 historical logged problems plus Word Break guided practice. No new mastery count inferred.
+
 ## Mastery Criteria
 
 A pattern is "done" only when you can:
@@ -49,7 +58,7 @@ A pattern is "done" only when you can:
 | 9   | Backtracking         | 🔴         | —                                         | 4      |
 | 10  | Greedy               | 🔴         | —                                         | 3      |
 | 11  | Monotonic Stack      | 🟢         | Daily Temperatures, Next Greater Element I, Next Greater Element II | 3 ✅   |
-| 12  | Dynamic Programming  | 🟡         | Climbing Stairs, House Robber, Unique Paths, Min Cost Climbing Stairs, Coin Change | 8      |
+| 12  | Dynamic Programming  | 🟡         | Climbing Stairs, House Robber, Unique Paths, Min Cost Climbing Stairs, Coin Change, Word Break (guided) | 8      |
 | 13  | Topological Sort     | 🔴         | —                                         | 2      |
 | 14  | Union Find           | 🔴         | —                                         | 2      |
 
@@ -95,6 +104,7 @@ A pattern is "done" only when you can:
 | 32  | Unique Paths                              | DP (top-down)    | Medium     | 🟢         | 2026-09-06 | Recursion foundations session; recursion first try, then memoization |
 | 33  | Min Cost Climbing Stairs                  | DP               | Easy       | 🟡         | 2026-09-11 | arrive-vs-leave confusion (dp[i] vs cost[i]) — clicked after concrete walkthrough; late-night session |
 | 34  | Coin Change                               | DP               | Medium     | 🟢         | 2026-09-15 | Self-studied then explained all 5 points + greedy counter-example; code first try, zero bugs |
+| 35  | Word Break                                | DP               | Medium     | 🟡         | 2026-09-17 | Top-down + bottom-up coded with heavy guidance (H2/H3). Explained dp[i] + dp[0]=true + break-point recurrence unaided. NOT independent; execution/acceptance unverified. Needs a cold H0 rep — see LEARNING_PLAN.md |
 
 
 ---
@@ -125,7 +135,7 @@ These exist on disk from before the structured program. Real solutions, but not 
 
 ---
 
-## Weekly Goals
+## Historical Weekly Goals (superseded by current assessment)
 
 ### Status (reconciled 2026-06-21)
 
@@ -138,4 +148,3 @@ These exist on disk from before the structured program. Real solutions, but not 
 - **Re-drill post-gap:** the Hard ones (Min Window Substring shrink logic, Sliding Window Maximum) + confirm Two Pointers / Binary Search still solid.
 - **Not started:** DFS/BFS, Backtracking, Greedy, Monotonic Stack (concept seen via deque), DP, Topological Sort, Union Find.
 - **System Design:** still 0 — pick the 1st (URL Shortener) when ready.
-
