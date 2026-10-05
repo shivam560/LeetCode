@@ -1,10 +1,23 @@
 # DSA Interview Prep — Progress Tracker
 
-## Current assessment — 2026-09-17
+## Current assessment — 2026-10-05
+
+- Partition Equal Subset Sum: guided 2D completion (H2/H3), delayed independence untested. State/base/fit-guard/remaining-sum needed repeated explanation; final full method algorithmically correct, missing semicolon corrected. Correct zero-column propagation via j=0 loop. Complexity O(N*T) time/space and impossible/no-reuse tests correct; English explanation refined. Saved `Blind75/Questions/PartitionEqualSubsetSum.cs`, not built/run/acceptance-verified. Next cold nums=[2,3,7] state/table/code/test check; show subsets in traces. Do not infer mastery or update historical solved counts from guided completion.
+- Oct 3 Knapsack recall: optimum correct, A-only row initially mixed in B's value; corrected before full method attempt. Algorithm and recurrence correct, C# naming/indexing corrected. Complexity rationale correct. Retention developing. Older assessments below are historical.
+
+- 0/1 Knapsack: guided 2D completion, H2/H3 overall. After full table, cell transitions and if/else correct; full method logic correct with C# syntax corrections. Complexity O(N*W) time/space recalled; explanation refined. Zero-capacity/single-use correct; overweight example required answer correction. Saved `Blind75/Questions/ZeroOneKnapsack.cs`, not built/run. Delayed independent recall untested. Next fresh weights [2,3], values [4,5], capacity 4 table/code/test attempt; then brief LIS recall. No new Blind75 count or mastery inferred. Teaching: full table then code, separate input capacity from final unused capacity. Below Sep 24 Knapsack status is historical.
+
+- 0/1 Knapsack in progress: initial take/skip recall correct; A+B and A+B+C rows correctly supplied after guidance. State meaning, zero bases/dimensions, skip capacity and current-cell indices needed repeated explanation. Nested loops correct; transition block supplied explicitly (H2/H3). Full method, testing and complexity pending; not counted solved. Resume same example at i=3,j=5,weight=4 with one worked cell then an independent meaningful block. LIS recall remains around Sep 25.
+
+- LIS delayed recall needed state/predecessor re-teaching. Afterwards a fresh DP trace and full method reconstruction were correct without further algorithm hints. O(n²)/O(n) recalled; triangular loop-count reasoning corrected. Status remains guided/retention developing; no runtime verification. Next short delayed recall around Sep 25, not an automated reminder.
+
+- LIS (LC 300): O(n²) bottom-up method assembled correctly after guided derivation; duplicates test and complexity answered correctly. State wording, comparison direction, count-versus-value and loop bounds needed help. Saved in `Blind75/Questions/LongestIncreasingSubsequence.cs`; not run or acceptance-verified. Delayed independent recall pending.
+- Next session: fresh LIS state/DP trace before code; retain spaced Word Break and House Robber review. Earlier next-step notes below are historical.
 
 Use [LEARNING_PLAN.md](LEARNING_PLAN.md) for adaptive coaching, roadmap, assistance levels, recall dates, and the latest handoff. Historical green labels below do not establish current retention; verify with delayed independent attempts.
 
 - Word Break: top-down and bottom-up practiced with extensive guidance; correct bottom-up reconstruction observed. Independent delayed recall and transfer are not yet assessed; no execution/acceptance verified here.
+- Both approaches saved in [WordBreak.cs](Blind75/Questions/WordBreak.cs): `WordBreakTopDown` and `WordBreakBottomUp`. Code saved; compilation and execution not yet verified.
 - Next: a fresh, stable top-down example narrated without hints after rest. Repair loop/child-call confusion if it recurs; do not advance to LIS merely because guided answers are correct.
 - Teaching adjustment: complete worked traces when confused, followed by larger independent attempts; fewer repeated fill-in-the-blank or yes/no prompts.
 - Current record: 34 historical logged problems plus Word Break guided practice. No new mastery count inferred.
@@ -105,6 +118,7 @@ A pattern is "done" only when you can:
 | 33  | Min Cost Climbing Stairs                  | DP               | Easy       | 🟡         | 2026-09-11 | arrive-vs-leave confusion (dp[i] vs cost[i]) — clicked after concrete walkthrough; late-night session |
 | 34  | Coin Change                               | DP               | Medium     | 🟢         | 2026-09-15 | Self-studied then explained all 5 points + greedy counter-example; code first try, zero bugs |
 | 35  | Word Break                                | DP               | Medium     | 🟡         | 2026-09-17 | Top-down + bottom-up coded with heavy guidance (H2/H3). Explained dp[i] + dp[0]=true + break-point recurrence unaided. NOT independent; execution/acceptance unverified. Needs a cold H0 rep — see LEARNING_PLAN.md |
+| 36 | Longest Increasing Subsequence | DP | Medium | 🟡 | 2026-09-20 | Guided O(n²) solution; complete code and complexity correct after help. Exact-ending state and count-versus-value need delayed recall. Not executed/acceptance-verified. |
 
 
 ---

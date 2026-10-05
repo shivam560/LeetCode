@@ -1,6 +1,125 @@
 # DSA Session Notes — Revision Guide
 
-## Latest Session — 2026-09-15 (IST): Coin Change Revision
+## Latest Session — 2026-10-03 to 2026-10-05: Partition Equal Subset Sum
+
+### Knapsack recall on Oct 3
+
+Fresh weights [2,3], values [4,5], capacity 4: maximum 5/item B correct. Initially put B's value 5 into the A-only row; corrected to [0,0,4,4,4]. Afterwards take/skip expressions and full algorithm correct, with itemValue/value naming and rectangular return indexing corrections. Single item (2,4), capacity 4 answer 4 correct; previous-row rationale prompted. Complexity O(N*W) time/space with correct explanation. Recall improving, not fully independent mastery.
+
+### Partition problem and state
+
+Divide all positive integers into two groups with equal sums; equal counts are NOT required. Original stable input [1,5,11,5] gives groups [1,5,5] and [11]. Odd total -> false. Even total -> search for a subset summing to target=total/2; remaining elements automatically form the other group. Even total alone is insufficient: [1,2,5] cannot make target 4.
+
+`dp[i,j]` = can ANY subset of the FIRST i elements form EXACT sum j? Rows count available starting elements, columns are required sums 0..target, cells store booleans, not subsets. For row 2 of the original array, current number is nums[1]=5: distinguish row count 2, current value 5, and column target j.
+
+| Available elements / sum | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| None | T | F | F | F | F | F | F |
+| [1] | T | T | F | F | F | F | F |
+| [1,5] | T | T | F | F | F | T | T |
+
+- Base: empty selection [] has sum 0. Every row's sum-0 cell is true; no-items positive-sum cells false. At target 5, taking 5 leaves remaining sum 0, which succeeds with no further elements, not failure.
+- Skip: dp[i-1,j]. Take, only when nums[i-1]<=j: dp[i-1,j-nums[i-1]]. Combine with OR; if too large, skip only, avoiding negative index access. Both use previous row so the current element cannot be reused.
+- It is valid to initialize dp[i,j]=dp[i-1,j] before the fit-check and then OR the take answer into dp[i,j]. Coach initially objected without knowing the initialization; user clarified correctly. Preserve this distinction.
+- Example dp[3,11]: skip dp[2,11]=false; take dp[2,0]=true. The selected subset along the take branch is [11] + [] = [11]. User requested actual subsets for mental visualization, not storing them in the implementation. Show these selections in future traces.
+- User's initialization dp[0,0]=true is sufficient because their inner loop STARTS AT ZERO; for positive current numbers, else copies true down column 0. If a future variant starts the loop at 1, initialize the whole zero-sum column explicitly.
+- Return dp[nums.Length,target]. Fit permits BOTH take and skip, not compulsory taking. Last row means all elements available, not all selected.
+- Complexity: O(N*T) time, (N+1)*(T+1) boolean cells -> O(N*T) extra space conventionally. Total-sum calculation O(N). Positive integer inputs and sums fitting int assumed.
+
+### Evidence, saved solution and handoff
+
+Guided learning overall H2/H3: repeated help needed on empty subset/zero-sum base, current-number meaning, take remaining-sum cell, and fit-guard before subtraction. Correctly filled [1,5] row and wrote guarded OR transition. Full CanPartition method algorithmically correct, including propagation down column 0, with only a missing semicolon corrected. Complexity and [2,2,3,5] -> false reasoned correctly. Correctly rejected reusing 2 in [1,2,5]; previous-row mechanism reinforced. Interview explanation needed wording refinements (sum j, subset of first i, <=, fit allows both options). This is guided completion, not delayed independent mastery. Solve time and closed-notes compliance not verified.
+
+Saved [PartitionEqualSubsetSum.cs](Blind75/Questions/PartitionEqualSubsetSum.cs), preserving j=0 propagation with descriptive loop names. Source saved, NOT compiled/run/acceptance-verified. No 1D or top-down approach taught.
+
+Next session: short cold attempt before hints using nums=[2,3,7]. Ask total/target, state meaning, small full table including zero column, final boolean, and explain take when current number equals required sum. Then code/testing/complexity if recall supports it. Sample delayed LIS separately as energy permits; no accumulated catch-up backlog. Choose next lesson from recall rather than automatically adding harder DP.
+
+## Latest Session — 2026-10-01/02: Knapsack Guided Completion
+
+Saved on Oct 3 after the previous save was interrupted. Fixed example: A=(weight 2,value 30), B=(3,40), C=(4,50), capacity 5. Each item usable once. Equal-length input arrays, positive weights, nonnegative capacity, totals assumed to fit int.
+
+`dp[i,j]`: first i items se choose karke j capacity mein maximum VALUE. Cell does not store a chosen item or final unused capacity.
+
+| Available items / capacity | 0 | 1 | 2 | 3 | 4 | 5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| None | 0 | 0 | 0 | 0 | 0 | 0 |
+| A | 0 | 0 | 30 | 30 | 30 | 30 |
+| A,B | 0 | 0 | 30 | 40 | 40 | 70 |
+| A,B,C | 0 | 0 | 30 | 40 | 50 | 70 |
+
+- Important distinction: B skip karte hi capacity 5; phir A lene par final unused capacity 3. User's answer 3 described this later moment; coach initially missed the distinction. Skip B asks `dp[1,5]`, which returns value 30, not leftover 3 or immediate collected value 0.
+- Fit check: `itemWeight <= j`. Take: `itemValue + dp[i-1,j-itemWeight]`; skip: `dp[i-1,j]`. Both use previous row to exclude current item from the remaining problem. When fitting, take maximum; otherwise skip only.
+- Bases: no items or zero capacity gives 0 for positive weights. Allocate `int[,] dp = new int[itemCount+1,capacity+1]`; defaults to zeros. Rectangular access `dp[i,j]`, not `dp[i][j]`. Loops 1..N and 1..W, current input item at i-1, return `dp[N,W]`.
+- Time O(N*W): each item evaluates W capacities with constant work. Weight lookup alone is O(1). Space (N+1)*(W+1) cells, conventionally O(N*W).
+
+Evidence: extensive worked explanations/diagram support (H2/H3). After full table shown, independently within that guided session derived dp[3,4]=50, identified previous cell for overweight C, and wrote correct if/else recurrence. Full method algorithm, loop bounds and return correct; C# array allocation/access, variable name and punctuation needed correction. Complexity classes correct, rationale refined. Zero-capacity and single-item single-use answers correct. Overweight item (6,100), capacity 5: selected else correctly but initially answered 100; corrected to 0 after explanation, user said capacity was overlooked. Earlier final max 30 instead of 70 reported as typo. Closed-notes compliance not verified; no delayed mastery claim or measured solve time.
+
+User explicitly requested complete tables/graphics: use state -> small full table/branch diagram -> worked cell -> code. Avoid prolonged repetitive micro-prompts. Separate subproblem input capacity from final leftover. Firm accountability toward Google/60 LPA base aspiration without salary/employment promises, shame or treating necessary family travel as failure.
+
+Corrected solution saved: [ZeroOneKnapsack.cs](Blind75/Questions/ZeroOneKnapsack.cs). Descriptive loop names correspond to lesson i/j. Not compiled, run or acceptance-verified. General practice problem, not a new Blind75 checklist entry. No top-down or space optimization taught.
+
+Next: cold attempt with weights [2,3], values [4,5], capacity 4; state, complete small table, code, zero-capacity/overweight tests and complexity. Then sample delayed LIS recall as energy allows. No catch-up backlog. Decide next progression from observed independence.
+
+## Latest Session — 2026-09-24 (IST): Knapsack Table and Indexing
+
+Fixed example: A=(weight 2,value 30), B=(3,40), C=(4,50), capacity 5; each item usable once. Initial recall correctly compared taking C (50) with skipping C and taking A+B (70).
+
+- State: `dp[itemCount, capacity]` is the maximum value using the first itemCount items within that capacity. Items are available, not compulsory selections. The maximum value is the stored answer; available items and capacity identify the state.
+- Base cases: no available items or zero capacity gives 0 for positive item weights. Include zero states: 3 items and capacity 5 require 4 rows and 6 columns. C# `int[,]` starts with zeros.
+- Rows for capacities 0 through 5: no items `[0,0,0,0,0,0]`; A `[0,0,30,30,30,30]`; A+B `[0,0,30,40,40,70]`; A+B+C `[0,0,30,40,50,70]`.
+- Shivam supplied the last two rows correctly after guidance. Initially omitted the sixth entry in the A row. Correct rows did not establish reliable recurrence recall: skip capacity was subsequently confused again.
+- Take adds VALUE and subtracts WEIGHT from the current capacity. Skip uses the previous row and SAME column. Both branches use one fewer available item.
+- At C, capacity 5: take `50 + dp[2,1] = 50`; skip `dp[2,5] = 70`. At capacity 4: take `50 + dp[2,0] = 50`; skip `dp[2,4] = 40`.
+- Coding attempt: nested loop bounds 1..itemCount and 1..capacity correct. Transition confused global capacity/itemCount with current i/j, added weight instead of value earlier, and used incorrect predecessor indices. Correct transition block was explicitly supplied (H2/H3 support overall, not independent implementation).
+
+Index translation to revisit: row `i` considers the first i items; current item is `weights[i-1]` / `values[i-1]`; column `j` is this cell's capacity. Fit check `itemWeight <= j`; take `itemValue + dp[i-1,j-itemWeight]`; skip `dp[i-1,j]`; choose the maximum when fitting, otherwise skip only.
+
+Stopping point: user requested rest before answering the substitution for i=3, j=5, itemWeight=4. Next explain the mapping with the same complete worked cell, then let him narrate another cell and write a meaningful block without micro-prompts. Full method, testing and complexity analysis remain pending. No completed Knapsack source or execution; do not count solved. Keep LIS delayed recall around Sep 25, adjusted to attendance.
+
+## Latest Session — 2026-09-22 (IST): LIS Recall and Knapsack Introduction
+
+### 0/1 Knapsack introduction (no code yet)
+
+Fixed example: capacity 5 kg; A weighs 2 kg, value 30; B weighs 3 kg, value 40; C weighs 4 kg, value 50. Each item may be used once, cannot be split. Shivam correctly selected A+B (weight 5, value 70). Under guided questioning, explained that taking C leaves only 1 kg, so neither A nor B fits; skipping C permits the better A+B choice.
+
+Hindi rule: item fit ho toh lo ya chhodo, dono options ki best value compare karo. Fit nahi ho toh sirf skip. Dono branches mein next item par move karo; same item dobara nahi le sakte.
+
+User was sleepy and agreed to stop after the introduction. Next: use this exact example to derive a state with available items and remaining capacity, then explain why two dimensions are needed. Recurrence, base cases, implementation and complexity remain untaught/unassessed. Do not count Knapsack as solved.
+
+### LIS recall evidence
+
+- Cold attempt on `[4,2,3,1,5]` missed the final element and confused exact-ending state with best-so-far; required a worked explanation. Later omitted eligible predecessor `1`; corrected with a table. Record H2/H3 support, not independent delayed mastery.
+- After explanation, new input `[1,2,6,3,4]` was traced correctly: DP `[1,2,3,3,4]`, subsequence `[1,2,3,4]`, and `6` excluded because it exceeds `4`.
+- Complete O(n²) C# solution reconstructed correctly without further algorithm hints; only formatting backticks needed removal. This is successful same-session reconstruction after help. Code visibility/closed-notes compliance was not verified.
+- Time O(n²) and space O(n) recalled correctly. Reasoning correction: inner index runs only to `i-1`, so comparisons total `n(n-1)/2`; it does not scan the entire array for every i.
+- Hindi reminder: `dp[i]` exactly index i par end hone wali sequence ki length hai. Eligible predecessor chhota hona chahiye, lekin uski numeric value sabse badi hona zaroori nahi; longest eligible DP state extend karte hain.
+- No execution or acceptance verified. Next delayed recall: short unfamiliar example and exact state meaning, around Sep 25; adjust to attendance. Allow new learning between reviews rather than repeating this exercise indefinitely.
+
+## Session — 2026-09-20 (IST): Longest Increasing Subsequence
+
+LC 300: Return the length of the longest strictly increasing subsequence. Preserve original order; skipping elements is allowed. Input assumption for the saved method: at least one element.
+
+Hindi: array se kuch elements chhod sakte hain, lekin order badal nahi sakte. Har next chosen number pichhle chosen number se strictly bada hona chahiye. Hume numbers ka sum nahi, kitne elements choose hue unki maximum count chahiye.
+
+- State: `dp[i]` = longest increasing subsequence ki length jo exactly index `i` par end hoti hai. Yeh prefix ka overall best nahi hai.
+- Base: har cell `1`; har element akela ek valid subsequence hai.
+- Choices: har earlier index `j < i` check karo, sirf immediate previous element nahi.
+- Condition: `nums[j] < nums[i]`. Equal values extend nahi kar sakti.
+- Transition: `dp[i] = Math.Max(dp[i], dp[j] + 1)`. Current number ek element add karta hai, uski value add nahi hoti. `dp[j]` already integer length hai; uspar `.Length` nahi lagega.
+- Answer: `dp.Max()`, kyunki best subsequence kisi bhi index par end ho sakti hai.
+- Example: `[1, 2, 3, 0]` gives DP `[1, 2, 3, 1]`, answer `3`. Last cell `1` is correct for sequence `[0]`.
+- Duplicates: `[2, 2, 2]` gives DP `[1, 1, 1]`, answer `1`.
+- Complexity: nested comparisons O(n²), initialization and final maximum O(n); total O(n²) time, O(n) extra space.
+
+Saved source: [LongestIncreasingSubsequence.cs](Blind75/Questions/LongestIncreasingSubsequence.cs). Source reviewed; compilation, execution and LeetCode acceptance have not been verified in this update.
+
+Evidence: Shivam found increasing subsequences in examples, assembled the correct full DP method after scaffolding, answered duplicate test and complexity correctly. Needed help with comparison direction, adding an element versus its numeric value, the meaning of ending exactly at i, and starting inner loop at zero. Interview explanation still needed refinement on state and `dp[j] + 1`. Status: guided practice, not independent mastery.
+
+House Robber warm-up: initial answer 11 for `[2,7,9,3,1]`; after a hint about the final house, corrected to 12 and supplied DP `[2,7,11,11,12]` correctly. Keep this distinct from an independent first attempt.
+
+Next recall: one unfamiliar small LIS input; explain the state and full DP array without notes before code. Then reconstruct code and justify complexity. Use feedback on a complete attempt rather than an extended chain of leading blanks.
+
+## Session — 2026-09-15 (IST): Coin Change Revision
 
 **Status:** LC 322 bottom-up and top-down practiced with guidance; independent mastery is not yet established. This session revised one problem in two styles, not two new problems. Reference implementations are saved below in these notes; no standalone Coin Change source file or test run was added in this update.
 
