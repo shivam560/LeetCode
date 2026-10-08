@@ -1,6 +1,14 @@
 # DSA Interview Prep — Progress Tracker
 
-## Current assessment — 2026-10-05
+## Current assessment — 2026-10-07
+
+- Late-evening LIS recall required H2/H3: prefix-best vs exact-ending state, omitted predecessor, comparison direction, dp[j]+1 versus dp[i]++, and value/index mapping. Correct sequences after examples given; not cold mastery. User paused for rest. Resume same [3,1,2,5,4] with indexed table and full candidate trace before code. No new implementation, tests or complexity assessment. Counting success below remains separate evidence.
+
+- Count Subsets (positive integers, index-based): guided derivation followed by correct full-method reconstruction without code hints after a zero-sum-base reminder. Only formatting backticks in latest method; complexity/rationale correct. Base wording still needs delayed recall. Initial count++/boolean-count/skip-column confusion repaired using explicit subsets. Source SubsetSumCounter.cs saved, not built/run/accepted. No independent-mastery or Blind75-count increase inferred. Next brief delayed LIS assessment, counting recall in ~2-3 days/adaptive; Partition 1D cold recall pending. Older assessments below remain historical.
+
+- Evening update: Partition 1D guided completion (H2/H3). Inner-loop bound/destination fixed; full method's core DP correct, odd-total guard and C# local-name conflict corrected. Complexity O(N*T)/O(T) and same-element-reuse reasoning correct. CanPartitionOptimized saved beside 2D method, neither executed in this session. Delayed independent implementation pending; next cold method plus odd/reuse/duplicate cases. Earlier paused-optimization note below is historical.
+
+- Partition delayed conceptual recall: [2,3,7] total/target/impossibility and state meaning correct without hints. 1D optimization introduced; correctly recognized repeated use of number 2 in ascending updates, then descending trace demonstrated. User stopped tired before writing the loop. Next: descending inner loop, not a fresh unrelated problem. No independent 1D implementation or execution yet. Prior assessments below remain historical evidence.
 
 - Partition Equal Subset Sum: guided 2D completion (H2/H3), delayed independence untested. State/base/fit-guard/remaining-sum needed repeated explanation; final full method algorithmically correct, missing semicolon corrected. Correct zero-column propagation via j=0 loop. Complexity O(N*T) time/space and impossible/no-reuse tests correct; English explanation refined. Saved `Blind75/Questions/PartitionEqualSubsetSum.cs`, not built/run/acceptance-verified. Next cold nums=[2,3,7] state/table/code/test check; show subsets in traces. Do not infer mastery or update historical solved counts from guided completion.
 - Oct 3 Knapsack recall: optimum correct, A-only row initially mixed in B's value; corrected before full method attempt. Algorithm and recurrence correct, C# naming/indexing corrected. Complexity rationale correct. Retention developing. Older assessments below are historical.

@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: n = 4, roads = [[1,2,9],[2,3,6],[2,4,5],[1,4,7]] -> 5.
+
 // LeetCode 2492: Minimum Score of a Path Between Two Cities (Daily Challenge 2026-07-04)
 // n cities, bidirectional weighted roads. Path score = min road distance on the path.
 // Roads/cities may be revisited. Return the minimum possible score of a path 1 -> n.

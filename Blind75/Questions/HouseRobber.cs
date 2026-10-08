@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: nums = [2,7,9,3,1] -> 12 (rob values 2, 9 and 1).
+
 // LeetCode 198: House Robber — second DP problem (2026-09-05)
 // Houses in a line, each with money. Can't rob two ADJACENT houses. Max money?
 //

@@ -1,5 +1,10 @@
 namespace Blind75.Questions;
 
+// Question: Can the entire string be split into words from wordDict?
+// Keep character order; words must be contiguous and dictionary words may be reused.
+// Example: s = "applepenapple", wordDict = ["apple","pen"] -> true.
+// Split: apple | pen | apple. Both methods solve the same problem.
+
 public class WordBreak
 {
     public bool WordBreakTopDown(string s, IList<string> wordDict)

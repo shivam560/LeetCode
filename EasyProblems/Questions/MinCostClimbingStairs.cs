@@ -1,5 +1,8 @@
 namespace EasyProblems.Questions;
 
+// You may climb one or two steps after paying the current step's cost.
+// Example: cost = [10,15,20] -> 15; start at index 1, pay 15, climb to the top.
+
 // LeetCode 746: Min Cost Climbing Stairs — fourth DP problem (2026-09-11)
 // cost[i] = price to LEAVE step i. You may start free at index 0 or 1.
 // Return the min cost to reach the TOP — which is index n (one PAST the last step).

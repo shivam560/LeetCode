@@ -1,5 +1,8 @@
 namespace Blind75.Questions;
 
+// Question: Reverse a singly linked list and return its new head.
+// Example: 1 -> 2 -> 3 -> null becomes 3 -> 2 -> 1 -> null.
+
 public class ReverseLinkedList
 {
     public Node Reverse(Node head)

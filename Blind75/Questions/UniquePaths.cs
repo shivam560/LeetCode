@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: m = 3, n = 7 -> 28 distinct paths.
+
 // LeetCode 62: Unique Paths — third DP problem, and the first TOP-DOWN (memoized) one.
 // Robot at grid[0][0] must reach grid[m-1][n-1], moving only DOWN or RIGHT.
 // Count the distinct paths.

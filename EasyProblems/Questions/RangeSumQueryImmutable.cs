@@ -1,5 +1,7 @@
 namespace EasyProblems.Questions;
 
+// Example: nums = [-2,0,3,-5,2,-1], SumRange(0,2) -> 1 (inclusive endpoints).
+
 // LeetCode 303: Range Sum Query — Immutable
 // Given an array, answer many queries: "sum of elements from index i to j?"
 // Key insight: the CLASSIC prefix array. prefix[k] = sum of first k elements

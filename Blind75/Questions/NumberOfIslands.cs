@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: grid = [['1','1','0'],['0','0','0'],['0','0','1']] -> 2 islands.
+
 // LeetCode 200: Number of Islands
 // Grid of '1' (land) / '0' (water). Count islands (4-directionally connected land).
 // Key insight: scan every cell; each new unvisited '1' starts a new island (count++),

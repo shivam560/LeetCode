@@ -1,5 +1,8 @@
 namespace Blind75.Questions;
 
+// Question: Merge two ascending sorted linked lists into one sorted linked list.
+// Example: list1 = [1,2,4], list2 = [1,3,4] -> [1,1,2,3,4,4].
+
 public class MergeTwoSortedLists
 {
     public Node MergeTwoLists(Node list1, Node list2)

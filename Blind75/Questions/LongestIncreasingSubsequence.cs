@@ -1,5 +1,10 @@
 namespace Blind75.Questions;
 
+// Question: Return the length of the longest strictly increasing subsequence.
+// Preserve array order; elements may be skipped, but equal values cannot extend it.
+// Example: nums = [3,1,2,5,4] -> 3, from [1,2,5] or [1,2,4].
+// Assumption: nums is nonempty.
+
 public class LongestIncreasingSubsequence
 {
     public int LengthOfLIS(int[] nums)

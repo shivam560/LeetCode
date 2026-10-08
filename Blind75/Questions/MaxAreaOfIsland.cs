@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: grid = [[1,1,0],[0,1,0],[0,0,1]] -> 3; diagonal land is not connected.
+
 // LeetCode 695: Max Area of Island
 // Grid of 0 (water) / 1 (land) — ints this time, not chars. Return the area
 // (cell count) of the largest island; 0 if none.

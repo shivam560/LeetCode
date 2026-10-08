@@ -1,5 +1,51 @@
 # DSA Session Notes — Revision Guide
 
+## Latest Session — 2026-10-07 late evening: LIS Recall
+
+Fixed input nums=[3,1,2,5,4], indices 0..4. User requested the full problem statement; assistant supplied example subsequences/answer, so subsequent sequence answers are not cold independent evidence.
+
+- Initial state wording was prefix-best, not exactly-ending-at-index. Explicit clarification and dp[0..2]=[1,1,2] supplied. User then correctly gave [1,2,5] and [1,2,4]; full table [1,1,2,3,3] shown.
+- For current 4, user listed predecessors 1 and 2 but omitted eligible 3. Explained eligibility of earlier smaller values and choosing maximum previous DP length, not largest previous value.
+- Recurrence attempt reversed comparison (nums[i]<nums[j]) and incremented dp[i] instead of using dp[j]+1. Correct guarded Math.Max update explicitly explained using [1,2]+[4].
+- Next attempt used dp[3] to refer to VALUE 3, confusing value and index. Showed index/value rows: previous value 3 is at index 0; current value 4 at index 4, so candidate is dp[0]+1=2, sequence [3,4]. dp[3] belongs to value 5 and is ineligible for current 4.
+- Overall H2/H3 support; state/transition/index mapping retention needs repair. No independent full method or new complexity assessment; no source changes or runtime checks.
+- User explicitly stopped for fresh-mind study tomorrow. Resume SAME input with visible index/value rows, one complete worked current-4 comparison table, then a meaningful uninterrupted trace from the learner. Avoid repeated tiny prompts. Separate value, index and stored length; revisit exact-ending state before code. Do not treat acknowledgment as mastery. Partition/counting recall remains available for later, not a catch-up obligation.
+
+## Latest Session — 2026-10-07: Count Subsets and Recall
+
+Problem: count index-based subsets with exact target sum; positive numbers, nonnegative target, count assumed to fit int. Each element usable once. Different positions with equal values are distinct selections. No odd-total rejection or halving: target is supplied directly.
+
+State: dp[i,j] counts subsets of the first i elements forming sum j. Fit -> previous-row skip count plus previous-row remaining-sum take count; too large -> skip count only. Take and skip partition subsets into disjoint groups (current element present/absent), so counts add without double-counting. No separate count++: that does not count all valid subsets here. Appending current number to each remaining subset preserves the number of ways; do not add 1 to the take count.
+
+Base: dp[0,0]=1 for the single empty subset. Other cells default 0. Loop j from 0 propagates 1 down the zero column for positive inputs. Target 0 has one way even when positive elements ARE available, because they may all be skipped. Zero-valued input behavior has not been taught; do not transfer the positive-only zero-column rule blindly.
+
+Examples: [1,2,3], target 3 -> [1,2] and [3], count 2. [1,2,3,4], target 5 -> [2,3] and [1,4]; for current 4, skip is dp[3,5]=1, take is dp[3,1]=1. [2,2], target 2 -> two index-based ways. [2,4], target 3 -> 0. Positive inputs, target 0 -> [] only, count 1.
+
+Initial guided work needed repeated distinction between boolean/count, element count/subset count, count++ versus adding previous answers, and skip keeping the sum column. Initial method recurrence correct with C# int[,] declaration, sum-versus-j and return indexing corrections. Complexity O(N*T) and table (N+1)*(T+1), conventionally O(N*T) space, correct; target-zero/duplicates/impossible and multiple-subset examples correct after teaching.
+
+Oct 7 22:05-22:16 return: recalled [2,3]/[1,4] and addition rationale correctly. Base wording initially implied no positive elements available; clarified that empty selection exists even with positive items available. Then reconstructed COMPLETE CountSubsets method correctly without code hints, except pasted formatting backticks. Initialization, j=0 propagation, guarded recurrence and rectangular indexing all correct. Time/space with rationale correct. Record code attempt as no code hints after a conceptual base reminder; closed-notes compliance unverified, not fully independent delayed mastery. No solve time measured.
+
+Saved SubsetSumCounter.cs with descriptive names corresponding to lesson i/j. General practice, not a new Blind75 entry. No compilation, execution or platform acceptance verification. Direct GFG practice and related LC494 were offered; user deferred platform practice. LC494 transformation has NOT been taught.
+
+Next session: sample delayed LIS with a small fresh input and exact-ending state, rather than more same-pattern micro-drills. Revisit CountSubsets after roughly 2-3 days/adapt attendance: empty subset/base, disjoint take/skip counts, full method on fresh input. Partition 1D independent recall still pending. No automated reminders, new deadline or catch-up backlog.
+
+## Latest Session — 2026-10-06 evening: Partition 1D Guided Completion
+
+- User requested a full explanation before code. Worked example with only number 2, tracked sums 0..4: ascending updates let dp[4] read newly updated dp[2], incorrectly reusing the same array element. Descending updates read smaller-sum cells before this number modifies them. Distinct equal-valued array elements remain separately usable.
+- 1D state: after processing each number, dp[sum] tells whether some subset of processed elements forms exactly sum. dp[0]=true. For each number, iterate required sums from target down through currentNumber inclusively; update dp[sum] = dp[sum] || dp[sum-currentNumber]. Existing destination is skip, source is take. Odd total returns false before target calculation.
+- Evidence: first inner-loop attempt used > instead of >= and wrote dp[currentNumber] instead of dp[sum]; corrected with explanation. Correctly substituted dp[7] OR dp[4] for current number 3. Full-method DP initialization, descending update and return correct; omitted odd-total guard, reused sum as an inner local (C# name conflict), and included formatting backticks. Corrections provided. Same-session guided completion H2/H3, not independent delayed implementation.
+- Time O(N*T) and extra space O(T) correctly recalled. Final explanation correctly identified element reuse in ascending order; distinction between reusing one element and selecting two separate equal elements clarified.
+- Saved CanPartitionOptimized alongside unchanged 2D CanPartition in PartitionEqualSubsetSum.cs. Positive integer input, sum fits int, as before. No compilation, execution or acceptance verification. No new commit/push requested.
+- Next short delayed attempt (around Oct 7-9, adaptive): reconstruct method without hints and predict [1,2] false (odd total), [2,6] false (no reuse), [2,2] true (two separate elements), explaining the loop invariant. These are upcoming tests, not executed results. Then sample one older pattern/LIS before adding more related DP. Avoid another full round of repetitive leading micro-prompts if recall succeeds.
+
+## Latest Session — 2026-10-06: Partition Recall and 1D Introduction
+
+- Recall [2,3,7]: independently answered total 12, target 6, false and appropriate dp[i,j] meaning; wording refined to first i elements. This is positive conceptual recall evidence, not a new independent code attempt.
+- Explained that both transition lookups use the previous row: two rows suffice for O(T) space. Introduced a single-array version with descending required sums.
+- Stable optimization example: only number 2 available, sums 0..4, initial [true,false,false,false,false]. Left-to-right would let dp[4] read newly updated dp[2], reusing the same 2. User correctly identified the forbidden double-use.
+- Worked descending trace: j=4 reads old dp[2]=false; j=3 reads old dp[1]=false; j=2 reads dp[0]=true. Final [true,false,true,false,false]. Smaller-sum sources remain from before the current number's updates.
+- Status: descending trace explained, inner loop and full 1D implementation not yet attempted. User explicitly stopped because tired. Next: brief recap, then inner loop target down to currentNumber and OR update. Do not give a new drill at sign-off. No source edits or runtime checks for optimization; no mastery claim.
+
 ## Latest Session — 2026-10-03 to 2026-10-05: Partition Equal Subset Sum
 
 ### Knapsack recall on Oct 3

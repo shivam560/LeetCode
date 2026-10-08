@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: grid = [[2,1,1],[1,1,0],[0,1,1]] -> 4 minutes.
+
 // LeetCode 994: Rotting Oranges
 // Grid: 0 = empty, 1 = fresh, 2 = rotten. Every minute, rotten oranges rot their
 // 4-directional fresh neighbors. Return minutes until no fresh remain, else -1.

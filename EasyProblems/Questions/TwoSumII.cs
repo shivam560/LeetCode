@@ -1,5 +1,8 @@
 namespace EasyProblems.Questions;
 
+// Return 1-based indices of two distinct positions whose values sum to target.
+// Example: numbers = [2,7,11,15], target = 9 -> [1,2].
+
 // LeetCode 167: Two Sum II — Input Array Is Sorted
 // Same as Two Sum (his very first problem!) but the array is SORTED — and that
 // changes the tool: HashMap (O(n) space) -> Two Pointers (O(1) space).

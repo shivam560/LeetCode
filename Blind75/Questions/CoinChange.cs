@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: coins = [1,2,5], amount = 11 -> 3 coins (5 + 5 + 1).
+
 // LeetCode 322: Coin Change — fifth DP problem (2026-09-15)
 // Given coin denominations and a target amount, return the FEWEST coins needed to
 // make that amount, or -1 if it's impossible. Coins may be reused (unbounded).

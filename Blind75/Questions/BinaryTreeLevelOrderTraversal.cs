@@ -1,5 +1,7 @@
 namespace Blind75.Questions;
 
+// Example: root = [3,9,20,null,null,15,7] (level order) -> [[3],[9,20],[15,7]].
+
 // LeetCode 102: Binary Tree Level Order Traversal
 // Return node values level by level (list of lists).
 // Key insight: BFS with a queue. At the START of each level, queue.Count == number of

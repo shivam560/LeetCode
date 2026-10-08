@@ -1,5 +1,7 @@
 namespace EasyProblems.Questions;
 
+// Example: n = 3 -> 3 ways: 1+1+1, 1+2 and 2+1.
+
 // LeetCode 70: Climbing Stairs — FIRST DP PROBLEM (2026-09-05)
 // n stairs, you can climb 1 or 2 steps at a time. How many distinct ways to the top?
 //

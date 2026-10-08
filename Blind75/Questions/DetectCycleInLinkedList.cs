@@ -1,5 +1,9 @@
 namespace Blind75.Questions;
 
+// Question: Return whether a linked list contains a cycle, following Next links.
+// Example: 1 -> 2 -> 3, with node 3 pointing back to node 2 -> true.
+// Example: 1 -> 2 -> null -> false.
+
 public class DetectCycleInLinkedList
 {
     public bool DetectLoop(Node head)

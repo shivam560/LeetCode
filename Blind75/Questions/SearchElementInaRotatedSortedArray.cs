@@ -1,5 +1,9 @@
 namespace Blind75.Questions;
 
+// Question: Find a target in a rotated ascending array of distinct integers.
+// Return its zero-based index, or -1 when absent.
+// Example: nums = [4,5,6,7,0,1,2], target = 0 -> 4.
+
 public class SearchElementInaRotatedSortedArray
 {
     public int SearchElement(int[] nums, int target)
