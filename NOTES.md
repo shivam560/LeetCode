@@ -1,5 +1,48 @@
 # DSA Session Notes — Revision Guide
 
+## Latest Sessions — 2026-10-08 through 2026-10-11
+
+Recorded Oct 11, 18:06 IST from conversation evidence. No active solve time measured; gaps between messages are not continuous study. Earlier October 7 stopping points below are historical, not the next task.
+
+### LIS: smallest endings and delayed recall
+
+- O(n²) state is length of a strictly increasing subsequence ending exactly at nums[i], not prefix maximum. Final result is max over those states.
+- Optimized tails[k] stores the smallest ending seen for a subsequence of length k+1. tails.Count is LIS length; tails itself need not be an actual subsequence. Example [4,2,3,1,5] gives [4]->[2]->[2,3]->[1,3]->[1,3,5], while an actual LIS is [2,3,5].
+- Replace the first value >= current number; append if no such value exists. List stays strictly increasing. Search uses left=0, right=tails.Count, right=mid when candidate qualifies, left=mid+1 otherwise. Reset bounds for each input value. Equal values replace, not extend.
+- Oct 8 derivation/implementation heavily guided: larger-ending preference, value/count distinction, replacement position, index/value iteration and boundary reset repaired. Halving explanation clarified O(log n); total O(n log n), space O(n).
+- Oct 9 algorithm reconstructed without new code-structure hints; minor syntax corrections. Supplied tests including duplicates and decreasing input traced correctly; state wording and right=mid reasoning needed clarification. Not blanket mastery or verified runtime behavior.
+
+### Partition and Count Subsets recall
+
+- Partition state is boolean possibility using any subset of processed elements. Learner disclosed checking inner-loop bounds. Missing odd-total check and time O(N*T), not necessarily O(N²), needed repair. [2,6] -> false and no-reuse rationale correct.
+- Count Subsets state is an integer count, not possibility. Row i means first i available elements; current number is nums[i-1]. dp[0,0]=1; sum loop from 0 propagates the zero column. For positive inputs, empty subset is the one sum-zero way.
+- Repeated row/index and base mistakes triggered actual-subset enumeration, not more memorized code. [2,3] has [], [2], [3], [2,3] with sums 0,2,3,5. Adding an element does not remove previous subsets: skip preserves them. Correct [2,3,4] tables and transition reconstruction followed guidance (H2/H3).
+
+### Target Sum (LC 494): transformation and zeros
+
+- Every index receives + or -. Nonnegative inputs; repeated equal values at different indices are distinct choices. Let P be sum of plus elements and M sum of minus elements: P-M=target, P+M=totalSum, so P=(totalSum+target)/2.
+- Return 0 if target lies outside [-totalSum,totalSum] or totalSum+target is odd, before allocation. Count index-based subsets summing to P; their complements receive minus signs. Teaching assumptions: totals and counts fit int.
+- 2D: dp[i,s] is the number of subsets of first i elements summing to s. Base dp[0,0]=1. For s>=number, add previous-row skip and take counts; otherwise copy skip. Include s=0; return dp[N,P] outside both loops.
+- Zero changes the positive-only base intuition: [] and [0] are distinct selections. +0 and -0 are distinct sign assignments. A zero doubles every existing count, including the zero-sum count. Initialize only dp[0,0], not every row's zero cell to 1.
+- [0,1], target 1: P=1; rows (sums 0,1) are [1,0], [2,0], [2,2]; answer 2. [1,1,1], target 1: P=2; rows [1,0,0], [1,1,0], [1,2,1], [1,3,3]; answer 3 from three index pairs. [1,2], target 0 -> 0 via odd parity.
+- Oct 10 whole 2D algorithm reconstructed without new code hints after earlier instruction, with one semicolon missing. State still phrased as boolean and parity-test manual answer initially wrong. Two of three sign-enumeration tests correct. Not executed or acceptance-verified.
+
+### Target Sum 1D: derive boundaries, then compress
+
+- dp[s] counts subsets of processed elements totaling s. int[P+1], dp[0]=1 once. For each number, iterate currentSum from P down through number inclusively and add dp[currentSum-number] to dp[currentSum]. Return dp[P].
+- Start with descending loop through 0 and an explicit if(currentSum>=number). Derive the guard from remaining sum currentSum-number>=0; iterations below number do nothing, so fold the guard into the loop bound. Descending direction is a separate requirement preventing reuse of the current positive element. For zero, each cell reads its own old count and doubles once.
+- [0,1,1], target 0: P=1, states [1,0]->[2,0]->[2,2]->[2,4]. Learner initially reused stale dp[1]=0 and appended a fictitious cell; complete state trace corrected this. Later whole trace correct except sum++ typo corrected to sum--.
+- Full 1D method required H2/H3 fixes: missing dp[0]=1, return false in int method, casing/name conflicts, and dp[totalSum-number] instead of dp[currentSum-number]. Final method correct by inspection, no execution.
+- Complexity: time O(N*(P+1)), extra space O(P+1); usual O(NP)/O(P) shorthand assumes positive P. 2D uses (N+1)*(P+1) cells.
+- Oct 11 fresh independent trace: [0,0,2], target -2 -> totalSum=2, P=0, [1]->[2]->[4]->[4], number 2 skipped because 0>=2 is false, answer 4. All DP reasoning correct without hints. Fourth sign expression omitted minus before 2 and was corrected to +0 +0 -2. Positive transfer evidence, not a fresh independent implementation.
+
+### Handoff and verification status
+
+- Current next task is System Design: URL Shortener. Ask for the two core user actions and unknown-link behavior. Requirements first, then request flow, API, data model and justified tradeoffs. User has not answered yet; no design readiness inference.
+- Later spaced review: independent Target Sum 1D method, count-state wording, zero cases, parity/range checks, derive bounds. Do not repeat the entire same lesson immediately.
+- Prior artifacts were stale through Oct 7; this update reconciles the conversation honestly. Target Sum 2D/1D and LIS optimized methods are not yet saved as source in the repository. Existing LIS source is the O(n²) version. Source saving and focused runtime verification remain pending; no platform acceptance claimed.
+- Explicit preference: show how an if guard becomes a loop boundary, explain choices before templates. Fewer tiny leading questions; longer independent attempts; concrete tables when confused. No shame, hiring guarantees, or assumed continuous study time.
+
 ## Latest Session — 2026-10-07 late evening: LIS Recall
 
 Fixed input nums=[3,1,2,5,4], indices 0..4. User requested the full problem statement; assistant supplied example subsequences/answer, so subsequent sequence answers are not cold independent evidence.

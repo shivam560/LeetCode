@@ -1,8 +1,12 @@
 # Adaptive interview preparation
 
-Updated: 2026-09-17, 01:08 IST. Goal: Google and other big-tech engineering interviews. This is persistent workspace context for future sessions, not a guarantee of cross-app memory or hiring outcomes.
+Updated: 2026-10-11, 18:06 IST. Goal: Google and other big-tech engineering interviews. This is persistent workspace context for future sessions, not a guarantee of cross-app memory or hiring outcomes.
 
 ## How to coach Shivam
+
+- Derivation-first teaching (explicit request Oct 11): show the straightforward guarded implementation before moving its condition into a loop bound. Derive remaining subproblem, valid indices, and boundaries; distinguish loop direction from loop limits. Example: currentSum-currentNumber >= 0 implies currentSum >= currentNumber; descending order separately prevents same-index reuse.
+- Give meaningful uninterrupted attempts, not prolonged micro-questions or repeated full-method copying. Repeated misunderstanding requires a different representation (actual subsets, complete tables, or traces), then a fresh independent attempt. Distinguish syntax repairs from conceptual assistance.
+- Do not infer active study time from chat timestamps. Keep saved artifacts current; explicitly distinguish chat-reviewed code, source saved on disk, executed tests, and platform acceptance. Use HANDOFF.md for portable current context.
 
 - Solution-file convention (explicit user request Oct 7): every question solution must include top comments describing the problem and at least one concrete input/output example. Keep these above implementation, preserve existing useful headers, and apply to future saved solutions too. Do not confuse pedagogical assumptions with platform constraints.
 
@@ -79,6 +83,12 @@ Readiness estimate is provisional: the prior 4–6 month discussion was a planni
 Every weekly review: compare delayed recall, hints needed, repeated error types and independent transfer. If gaps persist, change instruction and problem selection. If recall is strong, reduce repetition and introduce variation. Never optimize only for solved count or streaks.
 
 ## Latest session handoff
+
+Current handoff — 2026-10-11, 18:06 IST: Target Sum (LC 494) 2D and 1D practiced. 2D full algorithm reconstructed without new code hints on Oct 10 after extensive prior scaffolding; one missing semicolon, state still described as boolean, two of three initial test predictions correct. Oct 11 correctly recalled count-state, P=1 and four sign assignments for [0,1,1], target 0. 1D method completed with H2/H3 assistance: base initialization, return type, naming and total-sum/current-sum lookup repaired. Whole trace [0,1,1] eventually correct. Later fresh [0,0,2], target -2 trace independently gave P=0, [1]->[2]->[4]->[4], loop skip and answer 4; last written sign expression needed -2 correction. This is positive independent trace evidence, not independent full-method mastery. Runtime/acceptance not verified. Recent Target Sum implementations and LIS optimized implementation exist in chat but are not yet saved as source files; avoid claiming otherwise.
+
+Exact next task: user agreed to begin System Design, URL Shortener; problem statement given, no answer yet. Ask for the two core user actions and behavior for an unknown short link. Begin with requirements, then request flow, APIs, and storage tradeoffs; do not jump to caches/sharding or assume design competence. URL Shortener remains introduced/awaiting first attempt. Revisit Target Sum full 1D implementation and count-state after a gap, not another immediate repeat. Plan a focused source-save/test task for the chat-only solutions. No automatic commit/push or reminders; current request authorizes artifact commit only.
+
+Oct 8–11 synthesis: LIS optimized cold reconstruction on Oct 9 had correct algorithm and supplied-case traces; tails invariant/boundary explanation still needed correction. Partition recall required state, odd-total, loop-bound and complexity help; learner disclosed consulting the inner loop. Count Subsets repeatedly mixed boolean/count, row/index and zero-column semantics; enumerated subsets and tables helped. See NOTES.md and TRACKER.md for assistance-level evidence. These entries supersede all older next-task instructions below.
 
 Latest stopping point — 2026-10-07 late evening: user ended LIS recall to rest. Same nums=[3,1,2,5,4]. Exact-ending state needed correction from prefix-best; eligible predecessor 3 omitted; comparison reversed and dp[i]++ used; then confused VALUE 3 with INDEX 3 in dp access. Explicit corrections supplied (H2/H3). Current 4 is index4; previous value3 is index0, candidate dp[0]+1=2; dp[3] belongs to value5. Sequence examples correct after full problem example was supplied, not independent discovery. Next resume with visible indices/values and complete worked current-4 candidate table, then whole learner trace before code; no endless micro-drills. No code, complexity reassessment or tests completed this recall. Respect stop/rest, no guilt backlog. Supersedes earlier next-task guidance below.
 

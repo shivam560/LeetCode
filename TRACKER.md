@@ -1,6 +1,22 @@
 # DSA Interview Prep — Progress Tracker
 
-## Current assessment — 2026-10-07
+## Current assessment — 2026-10-11
+
+| Area | Observed evidence | Current assessment |
+| --- | --- | --- |
+| LIS optimized | Oct 9 full algorithm reconstructed without code-structure hints; supplied normal/duplicate/decreasing traces and complexity correct. Tails meaning and binary-search invariant needed explanation. | Implementation recall improved; conceptual precision developing. Not run. |
+| Partition 1D | Learner disclosed looking up inner-loop bounds. State, odd-total guard and O(N*T) versus O(N²) repaired with help. Single-use test correct. | Guided recall, not independent mastery. |
+| Count Subsets | Initial code had row/index, zero-column and rectangular-indexing mistakes; actual subsets and full small tables led to correct transition reconstruction. | H2/H3; count versus boolean needs spaced checks. |
+| Target Sum 2D | Transformation, zeros and table taught with H2/H3. Oct 10 complete algorithm reconstructed without new code hints, one missing semicolon; state wording and one test prediction corrected. | Same-session reconstruction, not wholly cold mastery. |
+| Target Sum 1D | Oct 11 count-state and [0,1,1] sign assignments recalled correctly. Full method needed base/type/naming/index repairs. Later [0,0,2], target -2 DP trace correct without hints, one final sign transcription corrected. | Guided implementation; independent fresh trace positive. Execution/acceptance unverified. |
+| System Design | URL Shortener problem introduced; requirements question unanswered. | Awaiting first attempt, not assessed. |
+
+- Next: URL Shortener requirements (two core actions, unknown-link behavior), then request flow. Target Sum delayed full-code recall later; no need to restart DP.
+- Teaching adaptation: derive guards before loop bounds, show complete stable examples when confused, then fade hints. Track conceptual versus syntax help separately. Active study duration unmeasured.
+- Artifact status: October 8–11 learning evidence is now recorded here and in NOTES.md/HANDOFF.md. Target Sum source and LIS optimized source are still pending save/test; chat-reviewed implementations are not executed code.
+- No new mastery score or solved-count increment. The historical labels and assessments below are not current retention proof.
+
+## Historical assessment — 2026-10-07
 
 - Late-evening LIS recall required H2/H3: prefix-best vs exact-ending state, omitted predecessor, comparison direction, dp[j]+1 versus dp[i]++, and value/index mapping. Correct sequences after examples given; not cold mastery. User paused for rest. Resume same [3,1,2,5,4] with indexed table and full candidate trace before code. No new implementation, tests or complexity assessment. Counting success below remains separate evidence.
 
