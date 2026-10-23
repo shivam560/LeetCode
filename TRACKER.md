@@ -1,6 +1,121 @@
 # DSA Interview Prep — Progress Tracker
 
-## Current assessment — 2026-10-11
+## Current System Design + DSA routing — reconciled 2026-10-24 IST
+
+This is the authoritative current routing section. System Design evidence extends through Oct 23; Oct 24 is the local reconciliation date, not a new learner assessment. All earlier sections below remain historical snapshots, including their now-superseded Oct 16 next-task statements. Preserve their component evidence and the newer DSA record.
+
+| System Design component | Evidence and assistance | Assessment boundary |
+| --- | --- | --- |
+| URL Shortener full flow | Learner later narrated create -> generate -> persist/retry, and load balancer -> healthy server -> shared cache -> miss lock -> DB -> fill/release -> redirect or DB-absent 404. | Complete flow narration after prior teaching; not a cold independent design or implemented service. The old unanswered Oct 16 recall is no longer the current task; its exact numeric subquestion is not separately scored. |
+| Traffic estimates | Assumed 1M creates/day and 100M redirects/day. Write QPS 11.57 and 100:1 ratio were correct; read QPS was initially confused with 86,400 seconds/day. Tutor taught ~1,157 read QPS and 5x peak ~5,800; learner then answered a simpler 100-QPS example correctly. | Guided arithmetic; independent estimation/retention still needs evidence. |
+| Uniqueness and indexes | Learner proposed DB UNIQUE + regenerate/retry in the later collision exercise, recognized both prechecks can return false, and retained the constraint. Recognized existing PK index; after teaching, reasoned about CreatedAt/selectivity and index cost. | Positive component answers after earlier exposure, not wholly cold discovery. Bounded retries and exact constraint/error handling were tutor refinements; row-lock explanation needed correction. |
+| Shared cache and stampede | Learner proposed a common cache across three servers and recognized DB overload on simultaneous misses. | Cache-aside explained/practiced. Batching/rate limiting and presumed load-balancer deduplication were incomplete stampede proposals; distributed per-key coordination was coached. |
+| Lock safety | Learner suggested checking the owner before release and noticed expiry can occur between checking and deleting. | Unique per-acquisition ownership token, TTL and atomic compare-and-delete are coached/reference material. Machine identity or separate GET/DELETE is insufficient; fresh full reasoning unassessed. |
+| Deletion consistency | Learner identified stale-cache redirects after DB deletion, proposed invalidation and retry queue, and later recognized Redis-first deletion can still leave stale data. | Ordering, refill races and consistency/availability tradeoffs required guidance; no immediate-deletion guarantee established. |
+| Code generation | Learner proposed comparing code-space capacity, initially chose 6 chars, later preferred random and longer codes for guessability/collision reasons. | 62^6 was misstated as 5.6B; correct ~56.8B vs five-year 1.825B need. Unique-ID/Base62 collision reasoning and Base64 naming were confused. Eight-character secure random Base62-alphabet codes are the recorded design direction, not independently validated implementation. |
+| Idempotency | After long-URL deduplication/409 misconceptions, learner correctly restated UNIQUE(ClientId, IdempotencyKey), reuse of the existing record and no new code on retry. | Guided refinement/reconstruction. Response replay and payload-match checking are required reference details, not independently demonstrated mastery. |
+
+**Exact next System Design prompt (pending learner attempt):** Design a distributed API rate limiter allowing at most 100 requests per minute per user across 3 API servers. Begin with the learner's complete proposal and questions about minute/window semantics; do not supply the algorithm first. URL Shortener has been discussed through the topics above, not marked mastered, tested or fully independently assessed.
+
+**DSA remains separate:** preserve later LCS/Edit Distance recall and mixed DP dependency work as reported; guided Distinct Subsequences and Minimum Path Sum; reported independent LPS and Longest Consecutive reattempts with correctness unverified. Next DSA task remains the pending C# Arrays & Hashing frequency-counting exercise. No solved-count, mastery, execution or acceptance changes.
+
+**Provenance:** inspected local files and all four attachments from Daily DSA Revision (`6ac3f0af-d800-83e8-af19-8707cb1fb79d`); attachments matched local pre-merge bytes. Retrieved learner turns support the observations above; many tutor turns are content-reference placeholders, so inaccessible explanations are not invented. Current user handoff supplies the latest design details and rate-limiter next prompt. Prepared `/mnt/data/*_updated.md` copies were unavailable. See NOTES.md for technical distinctions. No source code, reminders, commits or pushes in this update.
+
+---
+
+
+
+## Current DSA evidence reconciliation — 2026-10-24 IST
+
+Scope: reconcile the Daily DSA Revision handoff with the existing local files, without a new learner assessment. The seven retrieved attachments exactly matched the four pre-update local files. Detailed teaching turns were not exposed by the chat reader, so the following later activities are recorded from the user's current handoff summary. Session dates, precise answers and correctness results are unavailable unless explicitly identified below. Older entries remain historical evidence; no solved count or mastery rating changes.
+
+| Activity | Assistance / provenance | Current assessment and next evidence needed |
+| --- | --- | --- |
+| LCS delayed recall | Later recall activity reported by the current handoff; detailed response and help level unavailable. Earlier 1D learning was H2/H3. | Do not keep treating all recall as never attempted; do not infer a pass. Obtain a short closed-notes state/dependency/code check when due. |
+| Edit Distance delayed recall | Later recall activity reported; detailed outcome and assistance unavailable. Preserve Oct 14 independent dependency reasoning and separate syntax corrections. | Successful delayed retention is not verified here; reassess without erasing earlier component progress. |
+| Distinct Subsequences | Guided practice per current handoff; exact H2/H3 level and implementation outcome unavailable. | Independent delayed derivation, implementation and testing remain to assess. |
+| Mixed DP dependency reasoning | Reported activity; no detailed answers or assistance record available. | Do not score transfer from a summary alone. Ask for old/current row dependencies and resulting traversal order on a fresh example. |
+| Longest Palindromic Subsequence (LPS) | Independent reattempt reported by the handoff; answer/code not available for inspection. | Independence is reported, not a verified correct solve or mastery. Correctness, edge cases, complexity and retention still need evidence. |
+| Longest Consecutive Sequence | Independent reattempt reported by the handoff; answer/code not available for inspection. | Do not infer tested code or mastery. Verify correctness, duplicate handling and complexity when the attempt is available. |
+| Minimum Path Sum | Derivation H0; 2D implementation H1/H2 (three tutor-pointed fixes). Directly observed — see note below table. | 2D compiled and passed 4 tutor tests; not LeetCode-submitted. 1D code unwritten. Cold 1D + top-down next. |
+| Arrays & Hashing frequency counting | Selected next task, not attempted in this reconciliation. | Start with a complete C# value-to-count dictionary attempt, trace, edge cases and complexity. |
+
+**Direct observation (Claude Code session, Oct 24 00:53–02:40 IST):** state, recurrence, dp[0][0], first-row/first-column formulas and full 3x3 table derived **H0**. 2D code needed three corrections after tutor pointers (loops from 0 -> dp[-1]; base loops used grid[i-1] instead of dp[i-1]; return dp[rows,cols]) -> implementation **H1/H2**. Tutor compiled and ran the final learner method (.NET 8): 7, 12, 5, 6 on [[1,3,1],[1,5,1],[4,2,1]], [[1,2,3],[4,5,6]], [[5]], [[1],[2],[3]] — all correct. Complexity O(rows*cols)/O(rows*cols) with reason after a tiny re-ask. 1D: dp[j]=old TOP, dp[j-1]=new LEFT and update line correct; ~2:40 AM row-0 blank guessed dp[0] then dp[j] (fixed-index bug, 2nd time that night) — fatigue, not scored. Not LeetCode-submitted. Next: cold closed-notes 1D method, then top-down.
+
+**Execution evidence (rest of this section):** no code was compiled or run in this update, and no platform acceptance was verified. MinimumPathSum.cs comments report four outputs (7, 12, 5, 6); retain them as a prior source-comment report, not a newly observed test result. LCS/Edit Distance/Minimum Path Sum source files exist and are untracked. No Distinct Subsequences/LPS/Longest Consecutive solution file was found. Earlier learner-reported LC 72 acceptance remains version-unspecified. Chat-reviewed code, saved source, compiled/tested source and accepted submissions are separate statuses.
+
+**System Design remains independent:** *(Superseded by the routing section above — next SD task is the Rate Limiter.)* The URL Shortener component evidence below is preserved. Its next task was the unanswered Oct 16 full create/reuse/collision + redirect/cache/DB/404 + four-digit capacity recall. Neither a failed recall nor a completed design is inferred.
+
+All older 'current' and 'pending' statements below are snapshots; this section updates DSA routing without deleting their evidence. Historical review dates are not attendance evidence or catch-up debt.
+
+---
+
+## Current reconciliation — 2026-10-24 IST
+
+This is an artifact check, not a new learner assessment. The observations below come from this chat through Oct 16 and existing DSA records. Older entries remain historical evidence.
+
+| System Design component | Observed work | Assistance / status |
+| --- | --- | --- |
+| Create and redirect | Learner described generated short link, mapping save and return; later described lookup/redirect/404 correctly. Browser-following-redirect detail supplied by tutor. | Correct component answers; complete independent flow pending. |
+| API and storage | GET/read and POST/create intuition correct; response initially repeated the long URL instead of a generated short URL. DB persistence after restart identified correctly. | API response and exact mapping refined with help. |
+| Uniqueness and reuse | Learner required unique short codes and chose same short link for repeat long URL. Unique constraint, collision retry and reverse lookup were explained. | Policy selected; implementation/concurrency reasoning unassessed. |
+| Workload and cache | Identified reads as dominant for tutor-supplied 1,000 creates/100,000 opens per day. Independently proposed a cache, then correctly traced miss -> DB -> fill and subsequent hit after explanation. | Positive reasoning; fresh complete trace and failure scenarios pending. |
+| Random codes and capacity | Proposed random number generation. Randomness versus uniqueness and 10^length numeric code space were taught; three-digit capacity required full explanation. | Guided; four-digit calculation unanswered. |
+
+- *(Superseded — see top routing section; next SD task is the Rate Limiter.)* Exact pending System Design recall: full create flow (reuse/collision), redirect flow (cache/DB/404), four-digit code capacity. Assigned Oct 16, no answer yet. Do not label this task failed or URL Shortener unstarted/mastered.
+- DSA: retain Oct 14 LCS/Edit Distance assessment; delayed recalls remain unverified. Past review dates do not prove attendance or performance. Reassess one item on return and adapt dates without backlog pressure.
+- Source audit: MinimumPathSum.cs is now present locally; comments claim Oct 24 derivation and four test results, but this chat has not verified that lesson or execution. Target Sum/Coin Change II and optimized LIS source-save backlog still exists. File creation is separate from skill assessment and verified execution.
+- Git audit: learning files are modified and EditDistance.cs, LongestCommonSubsequence.cs, MinimumPathSum.cs are untracked. This check does not stage/commit/push them. Unrelated existing edits are outside this task.
+
+---
+
+## Current assessment — 2026-10-14 latest 1D evidence
+
+Ye entry earlier assessments ko current stopping point ke liye supersede karti hai; purani entries historical evidence hain.
+
+| Dimension | LCS | Edit Distance |
+| --- | --- | --- |
+| Understanding/derivation | Top-down match/state independent; base/mismatch corrected. 1D H2/H3 visual scaffolding. | Top-down recurrence initially guided (H2); 1D TOP/LEFT/DIAGONAL, overwrite hazard and old `dp[0]` preservation independently derived. |
+| Implementation | 2D independently correct same session; 1D boilerplate reconstruction with one indexing correction. | 2D correct after guided derivation; 1D algorithm assembled by learner, dimension guidance plus two tutor-flagged syntax fixes (`;`, `b++` -> `i++`). |
+| Testing/complexity | Complexity correct; no compile/run/acceptance verified. | `ab`/`ba`: `[0,1,2]` -> `[1,1,1]` -> `[2,1,2]`, answer 2; one base-column correction, then variable trace correct. O(N*M) time/O(M) 1D reference; shorter-column optimization not implemented. |
+| Delayed recall | Pending | Pending |
+| Transfer | Positive same-session application to Edit Distance | Unfamiliar-problem transfer pending |
+
+Neither topic is mastered. Assistance is assessed per component; same-session success after prior scaffolding is not a cold H0 solve. Compile/LeetCode acceptance unverified; earlier learner-reported LC 72 pass is version-unspecified and does not establish 1D acceptance.
+
+Source coverage now includes top-down, 2D and 1D for both problems in the existing C# folder. LCS top-down was added as an assistant-reconstructed reference from documented learning, not learner performance. Existing methods and history retained. See NOTES.md for invariant, code provenance and corrected trace.
+
+| Review date (IST) | Closed-notes task | Status |
+| --- | --- | --- |
+| 2026-10-15 | LCS 1D: state, recurrence, `prevDiagonal`, C# method, complexity | Pending |
+| 2026-10-16 | Edit Distance 1D: base cases, overwrite order, C# method, fresh trace | Pending |
+| 2026-10-18 | LCS + Edit Distance mixed recall; pattern pehle reveal mat karna | Pending |
+| 2026-10-21 | Unfamiliar DP problem par state/dependency/space-optimization transfer | Pending |
+
+Dates flexible hain: day miss ho toh next available session par short reassessment karke dates shift karo; backlog/catch-up marathon mat banao. Ye review targets hain. Daily 8pm DSA reminder original chat mein separately schedule hona hai; is local sync ne reminder create nahi kiya aur uska status verify nahi kiya.
+
+---
+
+## Current assessment — 2026-10-14 Edit Distance update
+
+- Edit Distance (LC 72), studied from Laaksonen's *Competitive Programmer's Handbook* §7.5. Learner derived the three-operation recurrence with Socratic scaffolding (hand cases, fill-in templates), filled the LOVE/MOVIE table matching the book, and wrote the bottom-up C# method with zero bugs. Top-down (suffix state) needed two logic fixes (`i == j` instead of comparing characters, missing `+1`) plus three syntax slips; memo-reset concern was not answered and was fixed when saving. Learner reports LC 72 passed (version unspecified, not verified by the tutor).
+- Assistance: **H2 guided** overall. Not marked mastered. Delayed recall (~1 and ~3 days) and a fresh related transfer are pending.
+- Recurring bugs: index vs value (third occurrence this month); skipping "why / own words" questions.
+- Saved at `Blind75/Questions/EditDistance.cs` (bottom-up and top-down). Details in NOTES.md.
+
+## Current assessment — 2026-10-12 LCS update
+
+- Longest Common Subsequence (LCS) top-down: suffix state `Solve(i,j)` understood; match transition independent. Mismatch initially skipped only one string and base initially required both strings to end; each corrected once. Memoization concept correct, but C# tuple-key syntax and recursive argument passing needed cleanup. No compile/run/acceptance verification.
+- LCS 2D bottom-up: prefix state `dp[i,j]` = LCS length of first `i` chars of text1 and first `j` chars of text2. Base row/column zero; match uses diagonal + 1; mismatch uses max(top,left). User independently filled the entire `abc` vs `ac` table and then wrote the complete 2D C# method correctly. Complexity `O(N*M)` time and `O(N*M)` space independently correct.
+- LCS 1D optimization: after visual and dry-run scaffolding, user understood row reuse: before update `dp[j]` is previous-row top, `dp[j-1]` is current-row left, and `prevDiagonal` preserves previous-row diagonal. User reconstructed the optimized method from boilerplate with one indexing correction (`text1[i-1]`, `text2[j-1]`). Complexity `O(N*M)` time / `O(M)` extra space correct; recognized choosing the shorter string yields `O(min(N,M))` space. `prevDiagonal=0` at each row start was explicitly understood as the `dp[i-1,0]` empty-string base.
+- Assistance: 2D implementation strong same-session evidence; 1D derivation used H2/H3 visual/worked scaffolding, so same-session reconstruction is practice rather than cold mastery.
+- LCS status: retention developing; delayed recall and unfamiliar transfer are pending. Do not mark mastered. Code was not compiled, executed, or LeetCode-accepted in this session.
+- Saved/reference solution should include descriptive comments and concrete example `text1="abc", text2="ac" => 2`.
+- Exact next task: after a gap, closed-notes LCS state/transition + optimized-code recall, then a fresh related DP transfer problem. Avoid further immediate repetitive LCS drilling.
+
+This LCS update supersedes earlier immediate DSA next-task instructions. The October 8–11 evidence, pending source-save tasks, later recall items, and URL Shortener track below remain relevant. Solution saved at `Blind75/Questions/LongestCommonSubsequence.cs` with 1D and 2D methods; no compilation, execution, or platform acceptance verified during this handoff.
+
+## Previous assessment — 2026-10-11
 
 | Area | Observed evidence | Current assessment |
 | --- | --- | --- |
@@ -8,12 +123,14 @@
 | Partition 1D | Learner disclosed looking up inner-loop bounds. State, odd-total guard and O(N*T) versus O(N²) repaired with help. Single-use test correct. | Guided recall, not independent mastery. |
 | Count Subsets | Initial code had row/index, zero-column and rectangular-indexing mistakes; actual subsets and full small tables led to correct transition reconstruction. | H2/H3; count versus boolean needs spaced checks. |
 | Target Sum 2D | Transformation, zeros and table taught with H2/H3. Oct 10 complete algorithm reconstructed without new code hints, one missing semicolon; state wording and one test prediction corrected. | Same-session reconstruction, not wholly cold mastery. |
-| Target Sum 1D | Oct 11 count-state and [0,1,1] sign assignments recalled correctly. Full method needed base/type/naming/index repairs. Later [0,0,2], target -2 DP trace correct without hints, one final sign transcription corrected. | Guided implementation; independent fresh trace positive. Execution/acceptance unverified. |
+| Target Sum 1D | Earlier method needed base/type/name/index repairs. Referenced Oct 11 chat: independent [0,0,2], target -2 trace, P=0, [1]->[2]->[4]->[4], answer 4; separate-index zero reasoning and descending/no-reuse correct. Count-state wording, exact lower bound and take/skip reasoning refined with help, then correctly restated. | Independent trace; guided implementation and reasoning refinements. Delayed full-code recall pending; not run/accepted. |
+| Coin Change II (LC 518) | After guided state/reuse/coin-order explanation, learner correctly traced [2], amount 6 -> [1,0,1,0,1,0,1] and [1,2], amount 3 -> [1,1,1,1] -> [1,1,2,2]. Complete C# core correct without new code hints; O(N*A) time correct, O(N) space corrected to O(A). | Same-session transfer/code reconstruction after conceptual help, not cold mastery. Permutation explanation refined; trailing braces flagged. Not compiled/run/accepted; delayed recall pending. |
 | System Design | URL Shortener problem introduced; requirements question unanswered. | Awaiting first attempt, not assessed. |
 
-- Next: URL Shortener requirements (two core actions, unknown-link behavior), then request flow. Target Sum delayed full-code recall later; no need to restart DP.
+- Next DSA task: select and present a problem with a different DP structure, then take a meaningful independent attempt before giving a solution. The referenced chat did not name a specific next problem; selection is still pending. Do not repeat the completed Target Sum trace or assign another near-identical counting exercise. URL Shortener remains queued on the parallel System Design track: ask for the two core user actions and unknown-link behavior, then derive request flow, APIs and storage. Its requirements attempt is still unanswered.
+- Later recall: Target Sum full 1D method/guards/zeros and Coin Change II state, loop-order reasoning and allocation-based space complexity, after a gap.
 - Teaching adaptation: derive guards before loop bounds, show complete stable examples when confused, then fade hints. Track conceptual versus syntax help separately. Active study duration unmeasured.
-- Artifact status: October 8–11 learning evidence is now recorded here and in NOTES.md/HANDOFF.md. Target Sum source and LIS optimized source are still pending save/test; chat-reviewed implementations are not executed code.
+- Artifact status: updated 2026-10-11 from DP intuition explanation (conversation 6ac3f0af-d800-83e8-af19-8707cb1fb79d). Coin Change II code attempt is recorded in NOTES.md; no new solution source or execution was produced by this documentation update. Earlier Target Sum/LIS source-save/test tasks remain pending.
 - No new mastery score or solved-count increment. The historical labels and assessments below are not current retention proof.
 
 ## Historical assessment — 2026-10-07

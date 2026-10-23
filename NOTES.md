@@ -1,5 +1,421 @@
 # DSA Session Notes — Revision Guide
 
+## Latest System Design reconciliation — progress through 2026-10-23, saved 2026-10-24 IST
+
+This section supersedes older System Design stopping points below, while retaining all previous text and the newer DSA evidence. It records prior learning, not a lesson or test conducted during this reconciliation. Source: retrieved turns from Daily DSA Revision (`6ac3f0af-d800-83e8-af19-8707cb1fb79d`) plus the current user's explicit handoff. Many tutor replies remain content-reference placeholders; distinguish visible learner answers from handoff-supplied/coached reference material. All four attached Markdown files matched local pre-merge copies; `/mnt/data` prepared files were unavailable.
+
+### Full URL Shortener flow and scale
+
+Later learner narration covered creation from long URL to generated code, saving to DB and retrying a duplicate code; redirect through load balancer to a healthy server, cache lookup, miss coordination, DB lookup, cache fill, lock release and redirect, with 404 when the DB has no mapping. This is meaningful whole-flow reconstruction after earlier teaching, not a cold design or implemented/tested system. Do not keep assigning the Oct 16 full-flow recall as though no later answer exists. Its exact four-digit numeric subquestion was not separately verified.
+
+Reference flow: POST creation persists shortCode -> longUrl and returns the generated short URL after successful storage. GET /{shortCode} resolves the mapping and returns a redirect for the browser to follow. A cache miss falls back to the DB; only confirmed absence justifies 404. Cache/DB outages are not evidence that the URL does not exist. Endpoints were illustrated with both /links and /urls in teaching; no production API contract was implemented.
+
+The later teaching workload is **1,000,000 creates/day and 100,000,000 redirects/day**, superseding the earlier smaller example for current estimation:
+
+- Seconds/day = 86,400; average writes = 1,000,000 / 86,400 = 11.574... (~12/s).
+- Average reads = 100,000,000 / 86,400 = 1,157.407... (~1,157/s); reads:writes = 100:1.
+- Assumed 5x read peak = 5,787.037... (~5,800/s). These are workload assumptions, not measured throughput or a benchmark.
+- Learner correctly gave write QPS and ratio, initially used 86,400 as read QPS, then said estimation was unfamiliar. Tutor supplied read/peak calculations; learner answered the simpler 8,640,000/day -> 100/s follow-up correctly. Record guided arithmetic, not independent capacity-estimation mastery.
+
+### Collision correctness, primary keys and indexes
+
+In the later concurrency exercise, learner proposed a DB UNIQUE constraint and regeneration on collision, recognized two servers can both read “not found,” and insisted on retaining uniqueness. Earlier instruction had already introduced this idea; this is a useful unaided response within an exposed topic, not first-time cold discovery.
+
+Correct reference: enforce uniqueness on ShortCode (PK or UNIQUE), attempt INSERT, and generate a fresh candidate only for a short-code uniqueness violation, with a bounded retry budget. Do not overwrite another mapping, retry forever, or treat every database error as a code collision. A precheck is optional and cannot enforce concurrency safety. The learner's “lock the row” account needed refinement: a row may not yet exist; the DB's unique-index/concurrency mechanisms prevent two conflicting committed rows. No particular engine's locking internals were independently established.
+
+In the SQL Server teaching example, a ShortCode PK already has a supporting unique index; another identical lookup index is redundant. Learner recognized this and, after explanation, distinguished exact-code lookup from CreatedAt queries. A selective query (e.g. 100 matching rows from 500M) can benefit from an appropriate index; returning 400M rows may make a scan cheaper. Indexes add storage/write maintenance; low query frequency alone is not a universal reason to reject one. Actual plans/costs depend on the engine, query and data. Later selectivity answers were correct component reasoning after instruction, not a verified tuning exercise.
+
+### Shared cache, stampede and distributed-lock safety
+
+Learner proposed a common cache for three API servers and DB fallback on cache miss. Cache-aside reference: hit -> redirect; miss -> DB -> cache fill on found mapping -> redirect. The cache is an acceleration layer; persistent mapping remains in the DB.
+
+Learner recognized that many simultaneous misses can overload the DB. Suggested batching/rate limiting and gateway/load-balancer request deduplication were incomplete: a normal load balancer does not automatically coalesce identical cache misses. Distributed per-key fill coordination was coached.
+
+Reference miss path: attempt a per-short-code lock in shared storage with TTL; after acquiring, recheck cache before querying DB because another filler may have populated it. Fill on success; release safely even on error. Nonowners use bounded waiting/backoff and recheck cache rather than spin forever or immediately all hit the DB. TTL permits recovery after owner failure; a paused owner may outlive its lease, so TTL does not guarantee only one worker is executing forever.
+
+Each lock acquisition needs a fresh unpredictable ownership token, not just a machine/server ID. Release only if the stored token still matches, using one **atomic compare-and-delete** operation. Separate GET then DELETE races: A's lease may expire and B may acquire between the two operations; A must not delete B's lock. Learner suggested checking ownership and noticed expiry between check/release, but unique-token/atomic-release mechanics were coached/reference material. No distributed-lock implementation or failure test exists.
+
+### Stale deletion and consistency tradeoffs
+
+Learner correctly predicted that deleting only from SQL still permits a stale Redis hit to redirect, proposed cache deletion and a retry queue for Redis outages, and recognized stale responses could persist. Choosing Redis DELETE before SQL DELETE was explored and corrected: an intervening miss may read the still-existing DB record and refill cache before SQL deletion.
+
+Reference baseline: persist deletion in the source of truth, invalidate cache and retry failed invalidations; cache TTL helps bound stale entries under the stated operating assumptions. This still allows a concurrent reader that fetched old DB data before deletion to refill after invalidation. A retry queue/outbox can make invalidation recovery more reliable, but does not itself guarantee immediate revocation or remove every refill race. Do not claim SQL and Redis participate in one ordinary atomic SQL transaction; that learner proposal required correction.
+
+If immediate deletion visibility is required, explicitly design a stronger coordinated/versioned/tombstone or authoritative-read path. Checking authoritative state on every redirect trades cache benefit and availability for fresher validation; an indexed DB lookup need not scan every row. Failure behavior and acceptable stale window must be requirements, not accidental promises. Final consistency guarantees were not independently designed or tested by the learner.
+
+### Base62, random generation and code-space arithmetic
+
+For a 62-character alphabet (A-Z, a-z, 0-9), L positions allow 62^L strings. **62^6 = 56,800,235,584 (~56.8 billion)**, not the learner's 5.6 billion. At a constant 1M creates/day for 365 days/year over five years, need = **1,825,000,000 (1.825 billion)** mappings, assuming every create needs a new code and ignoring leap days/deletions. Capacity exceeding demand does not eliminate random collisions: draws can repeat occupied codes long before exhaustion.
+
+Unique numeric ID -> canonical Base62 representation is one-to-one if IDs are actually globally unique and encoding is not truncated. Different unique IDs do not inherently collide after Base62 encoding. Distributed ID allocation still needs a uniqueness mechanism. Sequential IDs remain guessable/enumerable after encoding; Base62 is a representation, not encryption. Learner initially thought unique IDs could still encode identically, then corrected that response after prompting; later confused the name with Base64.
+
+Recorded direction: **8-character codes sampled with a cryptographically secure random generator from the Base62 alphabet**, with DB uniqueness and bounded collision retries. 62^8 = 218,340,105,584,896 possible strings. Randomness reduces predictability; encoding alone does not provide that property, and a short code is not an authorization mechanism. Learner favored random and 8/10 characters for guessability and collision reasons; exact secure generator details are reference/handoff material, not learner implementation evidence. Longer codes cost URL length and somewhat larger keys/storage; “DB lookup becomes slow” is not an established conclusion here.
+
+### Idempotency is separate from long-URL deduplication
+
+Scenario: server stores a mapping but the client loses the response and retries, possibly on another server. Learner first proposed looking up/uniquely constraining LongUrl and later returning 409 for a repeated request. Those ideas conflate a business policy (whether identical URLs reuse links) with request identity. Preserve the older reuse policy as history, not as a concurrency/idempotency guarantee.
+
+Reference: client supplies an IdempotencyKey scoped by authenticated ClientId; DB enforces **UNIQUE(ClientId, IdempotencyKey)**. Store a request payload/fingerprint and the original result with the mapping using a consistent transactional design. A completed retry with the same pair and matching payload replays the original response/short URL, without creating another code. A lookup uses both ClientId and IdempotencyKey, not LongUrl alone or an unscoped key.
+
+If the same pair is reused with a different payload, reject it as misuse/conflict; do not replay a response for a different request. A duplicate-key event for the idempotency pair is not a random-code collision and is not automatically a 500/409 for a valid completed retry. An in-progress request needs explicit bounded wait/retry/status handling; the final implementation/contract remains undesigned. Mapping and stored result must not be left inconsistently committed.
+
+The learner ultimately correctly restated uniqueness on ClientId + IdempotencyKey and returning the existing record without generating a new code. Record this as correct reconstruction after correction. Payload matching, full response replay and complete concurrency handling have not been demonstrated independently.
+
+### Exact next tasks and assessment boundary
+
+**System Design — pending learner attempt:** “Design a distributed API rate limiter: each user may make at most 100 requests per minute across 3 API servers. Clarify the requirement, then propose your design and explain simultaneous requests and failures.” Let the learner choose/clarify window semantics and attempt a complete design before hints; no algorithm is preselected here. Later, use a short URL Shortener recall from an observed gap rather than restarting its requirements or asserting mastery.
+
+**DSA — unchanged:** next is the C# value-to-count dictionary exercise. Preserve newer LCS/Edit Distance recall and mixed dependencies, guided Distinct Subsequences/Minimum Path Sum, and reported independent LPS/Longest Consecutive reattempts with their existing evidence limits. All detailed DSA notes below remain intact.
+
+No new learner assessment, solution implementation, runtime test, platform acceptance, mastery rating, solved-count increase or study-duration measurement occurred. Verification for this update covers documentation contents/preservation only. No reminder, commit or push was created. The sections below are preserved historical snapshots; their old “current/next” labels do not override the routing above.
+
+---
+
+
+
+## Daily DSA Revision reconciliation — saved 2026-10-24 IST
+
+### Provenance and preservation
+
+Repository verified at `/Users/shivamrajvanshi/Developer/Leetcode`. Compared the seven attachments from Daily DSA Revision (`6ad0e252-ac3c-83e8-b133-f1dca5effa29`) with HANDOFF.md, LEARNING_PLAN.md, NOTES.md and TRACKER.md: every corresponding copy matched byte-for-byte, including repeated attachment versions. The current local files already contain the Oct 24 System Design reconciliation; retain that work and all older learning history.
+
+The chat reader returned only the final handoff exchanges with assistant content-reference placeholders and no older-page cursor. The browser was signed out, so detailed DSA teaching turns were not available. The later DSA activities below are sourced to the user's current handoff request, not direct inspection of complete attempts. Do not invent exact study dates, successful answers, assistance counts, time spent or compiled results. This is a documentation date, not a newly completed study session.
+
+### Later DSA work carried forward from the handoff
+
+- **LCS/Edit Distance delayed recall:** the handoff identifies later recall work. Preserve it as reported activity rather than repeating the October 14 blanket 'not attempted yet' status. Exact recall outcomes and assistance are unavailable in the accessible evidence, so neither a pass nor a failure is recorded. Keep the detailed October 14 derivation/implementation history below intact.
+- **Distinct Subsequences:** guided practice. Do not call a reconstruction after instruction independent mastery. Exact code, mistakes, hint level and correctness outcome are unavailable; a fresh closed-notes attempt after a gap is the next assessment of retention.
+- **Mixed DP dependency reasoning:** reported practice comparing state dependencies. Outcome and independence are not specified. For future assessment, ask the learner to identify previous-row versus current-row values and derive traversal direction/temporary storage from those dependencies; that prompt is a future check, not evidence of a completed answer.
+- **Longest Palindromic Subsequence (LPS):** independent reattempt reported. Do not substitute LIS or LCS for this problem. The full attempt is unavailable, so preserve the independence claim as reported and leave correctness/edge cases/complexity/testing unverified.
+- **Longest Consecutive Sequence:** independent reattempt reported. Full code and result were unavailable; no confirmed successful solve or runtime check is inferred. Keep this separate from the next frequency-counting task.
+- **Minimum Path Sum:** **Direct observation (Claude Code session, Oct 24 00:53–02:40 IST):** state, recurrence, dp[0][0], first-row/first-column formulas and full 3x3 table derived **H0**. 2D code needed three corrections after tutor pointers (loops from 0 -> dp[-1]; base loops used grid[i-1] instead of dp[i-1]; return dp[rows,cols]) -> implementation **H1/H2**. Tutor compiled and ran the final learner method (.NET 8): 7, 12, 5, 6 on [[1,3,1],[1,5,1],[4,2,1]], [[1,2,3],[4,5,6]], [[5]], [[1],[2],[3]] — all correct. Complexity O(rows*cols)/O(rows*cols) with reason after a tiny re-ask. 1D: dp[j]=old TOP, dp[j-1]=new LEFT and update line correct; ~2:40 AM row-0 blank guessed dp[0] then dp[j] (fixed-index bug, 2nd time that night) — fatigue, not scored. Not LeetCode-submitted. Next: cold closed-notes 1D method, then top-down.
+  - Earlier reconciliation text (kept for history): guided practice per current handoff. A source file exists at `Blind75/Questions/MinimumPathSum.cs`. Its comments claim independent state/recurrence/base/table derivation, followed by corrections to loop starts, accumulated base-row/column sums and final indices; they also claim a compiled four-test run with outputs 7, 12, 5, 6. These are preserved source-comment reports, not independently observed learning or test execution in this reconciliation. Independent conceptual work and guided implementation could coexist, but the overall lesson must not be promoted to a cold H0 solve from the comment alone.
+
+### Technical reminders for later assessment, not scored learner answers
+
+LCS/Edit Distance compression requires distinguishing old TOP, updated LEFT and saved old DIAGONAL; row-start base handling differs between the two problems. Distinct Subsequences counts ways, so the state and empty-target base must be explained before a counting transition or update direction. LPS is a palindrome-subsequence problem, not the increasing-subsequence problem. For Longest Consecutive, ask why work is not repeatedly rescanning the same run and how duplicate input is handled. For Minimum Path Sum, accumulated path costs in the first row/column differ from merely adding neighbouring input cells. Use these reminders to select a check after the learner's attempt, not as evidence that the learner has independently explained them.
+
+### Exact next DSA task: Arrays & Hashing frequency counting
+
+Resume frequency counting with one meaningful uninterrupted C# attempt. If the original task wording is unavailable, ask: given `[4,2,4,2,4,-1]`, produce a dictionary mapping each integer to its occurrence count. Ask for the dictionary meaning, complete implementation, a full trace, empty/singleton/all-equal/negative cases, and time/space reasoning. Tutor reference: `{4:3,2:2,-1:1}`, expected O(n) time and O(k) additional space for k distinct values under expected constant-time dictionary operations. No answer or implementation was produced by the learner in this reconciliation.
+
+Log conceptual assistance separately from syntax fixes; do not front-load the solution. Then choose one short delayed check from the actual observed gap rather than restarting all DP or assigning a catch-up marathon.
+
+### Parallel System Design stopping point remains intact
+
+URL Shortener has already covered basic create/redirect behavior, API roles, persistence, same-long-URL reuse, cache-aside, random generation/collision handling and numeric code-space teaching. The unanswered Oct 16 independent recall remains the next task: complete create/reuse/collision flow, cache/DB redirect with precise 404 condition, and four-digit numeric-code capacity with reasoning. Let the learner attempt all three before correction. Then repair one observed gap and continue code-generation tradeoffs if ready. Detailed observed assistance and unanswered questions remain in the preserved System Design notes below.
+
+### Source and verification boundary
+
+No source code was edited, compiled or executed in this reconciliation. No LeetCode acceptance was verified. Existing untracked LCS/Edit Distance/Minimum Path Sum files remain in place; no Distinct Subsequences/LPS/Longest Consecutive solution file was found in the repository. Preserve older source-save tasks for Target Sum, Coin Change II and optimized LIS. Documentation verification checks file contents and preservation only; it does not validate learner algorithms. No commit, push, reminder or solved-count increase follows from this update.
+
+---
+
+## Reconciled 2026-10-24 — URL Shortener progress from this chat
+
+Progress discussed across Oct 13–16 had not reached the saved handoffs: they incorrectly continued to say the requirements attempt was unanswered. This entry repairs that omission. Oct 24 is the documentation-check date, not a new teaching/recall session. Active study time remains unmeasured.
+
+### Basic design and decisions already discussed
+
+- Two core actions: create a short link from a submitted long URL, and open a short link to reach its original URL. User initially described only opening and correctly chose 404 for an unknown link; creation action supplied by tutor, then user described creation correctly.
+- Store shortCode -> longUrl, e.g. abc123 -> https://example.com/article-A. User suggested saving long-URL details; exact key/value mapping explained. Redirect response instructs the browser to make a new request to the original destination; the shortener does not fetch the article itself in this design.
+- POST /links receives a JSON longUrl and returns a generated shortUrl such as https://short.example/abc123. GET /{shortCode} resolves and redirects. Learner had the read/create HTTP intuition; the first response example mistakenly returned the original URL and was corrected. No specific redirect status, security policy or production API contract was selected.
+- Learner chose returning an existing short link when the same long URL is submitted again. Creation therefore needs lookup by long URL, while redirect uses lookup by short code. Exact URL normalization/equivalence and concurrent duplicate submissions have not been taught or resolved.
+- Random short codes must be unique in storage. Tutor explained insert with a unique constraint and generating a new candidate on short-code collision; do not overwrite an existing mapping. Learner identified uniqueness need and later proposed random-number generation. No production generator, bounded retry policy or concrete database technology has been implemented.
+- Learner correctly explained that process memory is lost on restart and proposed a database for persistent mappings. No implementation or persistence test was run.
+
+### Workload and cache reasoning
+
+- Tutor supplied illustrative traffic of 1,000 creations and 100,000 opens per day, not real measured traffic. Learner identified the workload as read-heavy (100 reads per write).
+- Learner independently proposed caching repeated mappings. Tutor explained cache-aside: lookup requested code in cache; hit -> redirect; miss -> DB; found -> fill cache and redirect; absent in DB -> 404. A cache miss alone never proves a link is missing. No TTL, eviction, invalidation or outage behavior has been designed yet.
+- After instruction, learner correctly narrated the two-request example: initially empty cache, DB contains abc123 -> article-A. First request misses, reads DB and fills cache; second hits without DB lookup. Tutor clarified lookup is for the requested key, not whether the entire cache is empty.
+
+### Code capacity and current stopping point
+
+- Numeric codes permit leading zeros: three digits 000..999 give 10*10*10=1,000 possibilities; four digits give 10,000; six give 1,000,000. Larger capacity does not remove random collisions. Capacity is the count of available distinct strings, not a guarantee that random draws never repeat.
+- Learner could not derive three-digit capacity; a full worked count was supplied. Do not mark combinatorics understood from acknowledgment alone.
+- Oct 16, 18:02 IST: assigned one meaningful independent recall covering creation/reuse/collision handling, cache/DB redirect/404, and four-digit capacity calculation. No answer was received in the available conversation. On return, resume this attempt without supplying its solution first; do not restart requirements or switch to another chat's LCS topic.
+- Full requirements elicitation, non-functional targets, collision probability, code-generation alternatives, indexing, concurrency, failure recovery and end-to-end independent interview explanation remain unassessed. Do not count this design as completed/mastered.
+
+### Artifact audit and cross-chat routing
+
+- Current System Design evidence is now recorded in NOTES.md, TRACKER.md, LEARNING_PLAN.md and HANDOFF.md; the parent AGENTS.md now points to current per-track handoffs instead of the old Word Break introduction. Historical DSA evidence is preserved.
+- Existing DSA source inventory: LCS and Edit Distance saved; MinimumPathSum.cs present with comments reporting an Oct 24 session and test outcomes. Source-comment claims are recorded as unverified provenance in this chat, not independently observed learning or execution. Target Sum, Coin Change II and LIS optimized source-saving tasks remain pending.
+- This update is documentation only. No code tests, platform acceptance, reminders, Git commit or push performed. Shared files also contain other-chat DSA work; never let a global latest-next-topic replace explicit intent in this System Design chat.
+
+---
+
+## Latest reconciliation — 2026-10-14: Edit Distance 1D completion and LCS review queue
+
+Source: ChatGPT conversation “Edit Distance Bottom-Up”, ID `6ac3f0af-d800-83e8-af19-8707cb1fb79d`, plus existing local records. Ye entry neeche ke earlier Oct 14 / Oct 12 stopping points ko update karti hai; history delete nahi hui. Active study time measured nahi hai.
+
+### Kya independently hua, aur kahan help lagi?
+
+- LCS top-down: suffix state aur match case independent; mismatch mein dono skips aur base mein OR ke liye correction lagi. Memo syntax/arguments cleanup hua. 2D table, full C# method aur complexity same session mein independently correct the.
+- LCS 1D: H2/H3 visual/worked scaffolding ke baad boilerplate se reconstruction; ek character-index correction lagi. Isko cold independent mastery mat bolo. Delayed recall pending hai.
+- Edit Distance top-down recurrence initially guidance se sahi hui. Earlier `i == j` versus character comparison, missing `+1`, syntax fixes aur assistant-added `memo.Clear()` ki history neeche preserved hai. 2D table ke baad complete bottom-up C# method correct tha; overall earlier teaching H2 guided thi.
+- Edit Distance 1D: old TOP, new LEFT aur old DIAGONAL dependencies learner ne independently identify ki. Overwrite hazard aur row-start order bhi khud derive kiya: pehle old `dp[0]` save, phir `dp[0]=i`.
+- Array-size proposal mein `min(N,M)+1` ke saath inner loop full second string par tha; mismatch tutor ne point out kiya. Final implementation second string ki length + 1 use karti hai. Shorter-string orientation abhi implement nahi ki.
+- Learner ne full 1D algorithm assemble kiya; tutor ne do C# mistakes flag ki: method header ke baad extra `;`, aur initialization loop mein `i++` ki jagah `b++`. Learner ne dono correct kiye. Syntax assistance ko conceptual derivation se alag record karo.
+- LCS se Edit Distance tak optimization ka positive same-session transfer evidence hai. Unfamiliar-problem transfer aur delayed recall abhi pending hain; blanket H0/mastered claim nahi.
+
+### Edit Distance 1D — Hinglish explanation
+
+Problem: Return the minimum number of single-character insertions, deletions, or replacements needed to transform `a` into `b`.
+Example: `a="ab", b="ba"` -> `2` (replace both characters).
+
+`dp[i,j]` ka meaning: `a` ke first `i` characters ko `b` ke first `j` characters mein badalne ki minimum cost. Initial `dp[j]=j`: empty string se target prefix banane ke liye `j` inserts.
+
+Left-to-right update se pehle `dp[j]` previous row ka TOP hota hai; `dp[j-1]` current row ka updated LEFT. Old diagonal overwrite ho chuka hota, isliye separate `prevDiagonal` chahiye. `temp=dp[j]` old TOP bachata hai, jo next column ka diagonal banega.
+
+```csharp
+int prevDiagonal = dp[0]; // Previous row base: i - 1.
+dp[0] = i;                // Current row base: i deletions.
+```
+
+Order ulta hua toh required old base lose ho jayega. LCS mein first column always zero hai, isliye wahan each row `prevDiagonal=0` valid hai; Edit Distance mein old base `i-1` preserve karna hai.
+
+Match: `dp[j]=prevDiagonal` (extra operation nahi). Mismatch: `dp[j]=1+Math.Min(dp[j], Math.Min(dp[j-1], prevDiagonal))` (delete, insert, replace). Cell update ke baad `prevDiagonal=temp`.
+
+### Corrected dry run: a="ab", b="ba"
+
+| Stage | DP array | Explanation |
+| --- | --- | --- |
+| Initial | `[0,1,2]` | Empty source se target prefixes |
+| After row 'a' | `[1,1,1]` | First source character processed |
+| Row 'b' start | `[2,1,1]` | Old `dp[0]=1` saved; new `dp[0]=2` |
+| After row 'b' | `[2,1,2]` | Final answer `2` |
+
+Learner ka initial second-row trace `[1,1,2]` tha: final answer correct, first column wrong. Tutor ne base-column correction di. Follow-up mein learner ne `j=1` aur `j=2` dono par `temp=1`, update ke baad `prevDiagonal=1` correctly trace kiya. Isliye dry run “correct after one base-column correction” hai.
+
+### Source and verification status
+
+- `Blind75/Questions/EditDistance.cs`: existing top-down and 2D preserved; corrected learner 1D method saved as `EditDistance1D` to keep the existing `EditDistance` API intact.
+- `Blind75/Questions/LongestCommonSubsequence.cs`: existing 1D/2D preserved; top-down reference reconstructed from the previously documented recurrence and saved as `LongestCommonSubsequenceTopDown`. This added reference is assistant-written, not a new learner attempt.
+- All approaches: `O(N*M)` time. 2D uses `O(N*M)` space; top-down uses memo plus `O(N+M)` stack; current 1D orientation uses `O(M)` extra space. `O(min(N,M))` needs the shorter string as columns.
+- Compilation/execution and LeetCode acceptance remain unverified in this sync. Earlier learner-reported LC 72 pass (version unspecified) is retained as self-report, not verified acceptance, and is not evidence that 1D was submitted.
+
+### Next reviews
+
+| Review date (IST) | Closed-notes task | Status |
+| --- | --- | --- |
+| 2026-10-15 | LCS 1D: state, recurrence, `prevDiagonal`, C# method, complexity | Pending |
+| 2026-10-16 | Edit Distance 1D: base cases, overwrite order, C# method, fresh trace | Pending |
+| 2026-10-18 | LCS + Edit Distance mixed recall; pattern pehle reveal mat karna | Pending |
+| 2026-10-21 | Unfamiliar DP problem par state/dependency/space-optimization transfer | Pending |
+
+Dates flexible hain: day miss ho toh next available session par short reassessment karke dates shift karo; backlog/catch-up marathon mat banao. Ye review targets hain. Daily 8pm DSA reminder original chat mein separately schedule hona hai; is local sync ne reminder create nahi kiya aur uska status verify nahi kiya.
+
+Next new-topic session: URL Shortener requirements — learner pehle 3 clarifying questions, functional aur non-functional requirements ka uninterrupted attempt de. Architecture choices baad mein. DSA new practice, System Design aur revision parallel tracks hain; older Word Break/House Robber/Target Sum/Coin Change II reviews history mein retained hain.
+
+---
+
+## Latest Session — 2026-10-14 evening (~7:20–9:20 PM IST): Edit Distance (LC 72), taught from Laaksonen's *Competitive Programmer's Handbook* §7.5
+
+Context: learner shared the book and asked to understand §7.5 "the way it is explained there". Also asked whether weak maths is the problem; the answer given was that the record does not show a maths gap (self-derived recurrences, correct greedy counter-example). The book's maths section (pp. 10–15) is short; its log definition ("how many times can you divide by 2 to reach 1") addresses the earlier "two pointers meeting in the middle = log n" misconception.
+
+Problem: minimum insert/remove/modify operations to transform one string into another. Example: LOVE -> MOVIE = 2.
+
+### How it was derived (Socratic, hand cases first)
+
+- Hand cases: CAT->CUT = 1 modify; "" -> AB = 2 inserts; AB -> "" = 2 removes. LOVE -> MOVIE: reasoning "lengths differ" was incomplete (LOVE -> LOVES also differs by one yet costs 1); corrected to "one mismatch (L vs M) and one missing character (I) are two separate problems, one operation fixes one problem".
+- Last characters equal (the E in LOVE/MOVIE): leave them alone, distance equals that of LOV and MOVI.
+- Last characters differ: do not know in advance which operation wins, so try all three and take the minimum (same idea as Coin Change). Worked example CATS -> CAT: remove = 1, modify = 2, insert = 3, so remove wins.
+- Why each operation maps to its subproblem (taught after the learner asked "distance(a-1,b) remove kaise hai?"): remove drops the last char of x -> (a-1, b); insert adds y's last char to x and matches it immediately, so y shrinks -> (a, b-1); modify makes the last chars equal, both shrink -> (a-1, b-1).
+- Base cases: first row 0..m and first column 0..n ("" to a string of length k costs k). Learner first filled all zeros, then self-corrected from his own earlier "2 inserts / 2 deletes" answers.
+- Full LOVE/MOVIE table filled by the learner and matches the book (answer 2 at the corner). Prefix-length indexing: `dp[i,j]` uses `x[i-1]`, `y[j-1]` (the learner raised the `i-1` / `j-1` question himself).
+
+### Code and assessment
+
+- Bottom-up C# (prefix state) written by the learner after the table, with zero bugs: sizes `(n+1) x (m+1)`, base row/column, `x[i-1]==y[j-1]` diagonal else `1 + Min(up, left, diagonal)`. Saved in `Blind75/Questions/EditDistance.cs`.
+- Top-down: the learner chose a suffix formulation on his own (valid), with correct base cases and memo key. Two logic bugs: `if (i == j)` instead of `a[i] == b[j]` (index vs value, the third occurrence of this slip) and a missing `+1` in the else branch. He found the `+1` after a hint and stated the `i == j` fix after being asked to trace; the corrected code then compiled-in-the-head with three syntax slips (undeclared `answer`, missing semicolon, `solve`/`Solve` casing). The stale-memo problem (instance field reused across inputs) was raised; he did not answer, and `memo.Clear()` was added when the file was saved.
+- Complexity: time O(N*M) correct, space needed correction (top-down is O(N*M) memo plus O(N+M) stack; he mixed the stack term into the time formula). Space optimization to two rows recalled correctly after being asked twice.
+- Reported by the learner: LeetCode 72 passed (which version was submitted was not stated; not verified by the tutor).
+- Recurring pattern: asked "in your own words / why" questions were skipped repeatedly (the "" <-> k bonus, the "why not pick one operation up front" line); he answered only after the question was made tiny. The "why" is the thing that decays, so keep asking.
+
+### Status
+
+Edit Distance is logged as **guided (H2)**: hand-counting, the recurrence and the operation-to-subproblem mapping were scaffolded with fill-in templates; the bottom-up implementation after the table and the table itself were independent; top-down needed bug-finding help. Same-session implementation is practice, not a cold attempt. Delayed recall and a fresh transfer are pending.
+
+Next: spaced recall (closed notes) of Edit Distance in ~1 day and ~3 days — state meaning, the three operations -> three neighbours, base row/column, and why the match case takes the diagonal with no cost. Related transfer: Minimum Path Sum or a 2D prefix DP not yet seen. Still pending from before: LCS delayed recall, Word Break and House Robber spaced recall, URL Shortener requirements attempt.
+
+## Latest Session — 2026-10-12: Longest Common Subsequence (LCS) — Top-down, 2D Bottom-up, and 1D Optimization
+
+Problem: Longest Common Subsequence. Given two strings, return the length of the longest sequence of characters that appears in both strings in the same relative order; characters do not need to be contiguous.
+
+### Top-down state and recurrence
+
+- State: `Solve(i, j)` = LCS length of suffixes `text1[i..]` and `text2[j..]`.
+- Base: if `i == text1.Length || j == text2.Length`, return `0`. Once either suffix is empty, no more common characters can be matched.
+- Match: if `text1[i] == text2[j]`, take that character and move both indices: `1 + Solve(i + 1, j + 1)`.
+- Mismatch: try both possible skips and keep the better result: `Math.Max(Solve(i + 1, j), Solve(i, j + 1))`.
+- Memoization: a tuple key such as `Dictionary<(int i, int j), int>` stores each suffix-pair result.
+- Complexity with memoization: at most `N*M` distinct states, so `O(N*M)` time. Memo takes `O(N*M)` and recursion stack is worst-case `O(N+M)`; overall auxiliary space is `O(N*M)`.
+
+Evidence: suffix state and match case were derived independently. Mismatch initially considered only advancing `i`; one correction was needed to include both skip possibilities. Base initially required both strings to end; one correction established the correct OR condition. Memoization idea was correct, while C# tuple-key syntax, recursive argument passing, casing/punctuation, and class-level memo reuse needed cleanup. No compilation, execution, or LeetCode acceptance was verified.
+
+### Bottom-up 2D prefix DP
+
+State: `dp[i,j]` = LCS length of the first `i` characters of `text1` and the first `j` characters of `text2`. Here `i` and `j` are prefix lengths; the current characters are `text1[i-1]` and `text2[j-1]`.
+
+Base: `dp[0,j] = 0` and `dp[i,0] = 0` because an empty string has LCS length 0 with any string.
+
+Transition:
+- Match: `dp[i,j] = 1 + dp[i-1,j-1]`.
+- Mismatch: `dp[i,j] = Math.Max(dp[i-1,j], dp[i,j-1])`.
+
+Stable trace used in the session:
+
+```text
+text1 = "abc"
+text2 = "ac"
+
+        ""  a  c
+""       0  0  0
+a        0  1  1
+b        0  1  1
+c        0  1  2
+```
+
+User independently filled the full table and correctly explained each non-base cell. One earlier dependency slip on `dp[3,2]` used `dp[2,2]` instead of the diagonal `dp[2,1]`; after correction, the full table trace was correct without further help.
+
+2D solution reconstructed independently:
+
+```csharp
+// Problem: Longest Common Subsequence
+// Example: text1 = "abc", text2 = "ac" => 2
+public int LongestCommonSubsequence(string text1, string text2)
+{
+    int[,] dp = new int[text1.Length + 1, text2.Length + 1];
+
+    for (int i = 1; i <= text1.Length; i++)
+    {
+        for (int j = 1; j <= text2.Length; j++)
+        {
+            if (text1[i - 1] == text2[j - 1])
+                dp[i, j] = 1 + dp[i - 1, j - 1];
+            else
+                dp[i, j] = Math.Max(dp[i - 1, j], dp[i, j - 1]);
+        }
+    }
+
+    return dp[text1.Length, text2.Length];
+}
+```
+
+Complexity was independently identified as `O(N*M)` time and `O(N*M)` space.
+
+### 1D space optimization
+
+The 1D version is the same 2D recurrence with row memory reused; it is not a different algorithm.
+
+After a completed row `i`, `dp[j]` stores the LCS length of the first `i` characters of `text1` and the first `j` characters of the chosen column string.
+
+While building a row left-to-right:
+- `dp[j]` before overwrite = TOP = old `dp[i-1,j]` from the previous row.
+- `dp[j-1]` after overwrite = LEFT = current `dp[i,j-1]` from the current row.
+- `prevDiagonal` = old DIAGONAL = `dp[i-1,j-1]`.
+
+Before overwriting `dp[j]`, save `temp = dp[j]`. After computing the current cell, assign `prevDiagonal = temp`, because that old TOP becomes the diagonal for the next column.
+
+`prevDiagonal` is reset to `0` at the start of every new row because at `j=1` the diagonal is `dp[i-1,0]`, and column 0 represents the empty-string base case, always 0.
+
+Optimized solution reconstructed after visual/dry-run scaffolding and one indexing correction:
+
+```csharp
+// Problem: Longest Common Subsequence (1D space optimized)
+// Example: text1 = "abc", text2 = "ac" => 2
+public int LongestCommonSubsequence(string text1, string text2)
+{
+    int[] dp = new int[text2.Length + 1];
+
+    for (int i = 1; i <= text1.Length; i++)
+    {
+        int prevDiagonal = 0;
+
+        for (int j = 1; j <= text2.Length; j++)
+        {
+            int temp = dp[j];
+
+            if (text1[i - 1] == text2[j - 1])
+                dp[j] = 1 + prevDiagonal;
+            else
+                dp[j] = Math.Max(dp[j], dp[j - 1]);
+
+            prevDiagonal = temp;
+        }
+    }
+
+    return dp[text2.Length];
+}
+```
+
+Complexity: `O(N*M)` time and `O(M)` extra space for the exact implementation above. By choosing the shorter string as the DP-column string, extra space can be reduced to `O(min(N,M))`. The 1D array stores LCS lengths for prefixes of the chosen column string; it does not store the string itself.
+
+### Assessment and next action
+
+- State/problem understanding: top-down state independent; prefix-state became correct after clarification.
+- 2D derivation/table/implementation/complexity: strong same-session evidence; complete 2D method written independently.
+- 1D derivation: guided with substantial visual and dry-run scaffolding (H2/H3 instructional support).
+- 1D implementation: mostly reconstructed by the learner from boilerplate after the worked explanation; one current-character indexing correction (`text1[i-1]`, `text2[j-1]`) was needed.
+- Complexity: `O(N*M)` / `O(M)` answered correctly; learner also recognized using the shorter string for the 1D dimension, with wording refined to `O(min(N,M))`.
+- Delayed recall: not tested.
+- Fresh transfer: not yet tested for LCS-derived 2D/string DP.
+- Runtime status: code reviewed in chat only; not compiled, run, or platform-accepted in this session.
+
+Do not mark LCS as fully mastered yet. Next action should be a delayed closed-notes LCS recall after a gap plus a fresh related DP transfer problem, rather than more immediate LCS repetition.
+
+## Latest Session — 2026-10-11: Target Sum reasoning and Coin Change II transfer
+
+Source: referenced ChatGPT conversation “DP intuition explanation”, ID `6ac3f0af-d800-83e8-af19-8707cb1fb79d`. This entry extends the earlier Oct 8–11 record and supersedes its immediate next-task instruction. Active study duration was not measured.
+
+### Target Sum 1D: observed evidence and help
+
+- Independent trace: `nums=[0,0,2], target=-2`, totalSum=2, P=0. Initial `[1]`; first zero `[2]`; second zero `[4]`; number 2 skipped because `0>=2` is false, leaving `[4]`. Answer 4. Learner explained that the zeros are separate elements/indices. This trace was completed, not pending.
+- Independent reasoning: descending updates prevent using the same element twice. State was described as the number of ways to reach a sum; tutor refined it to the count of index-based subsets of processed elements with exact sum s.
+- Guided refinement: derive `currentSum-currentNumber>=0`, hence `currentSum>=currentNumber`; below that bound take is invalid but skip remains. Learner then correctly explained the `dp[2-3]=dp[-1]` example. This was a correct restatement after explanation, not an unaided derivation.
+- Zero reasoning: initial independent separate-index explanation and correct doubling trace; later “0 is valid” answer needed tutor refinement to distinct take/skip choices. Learner then stated both choices correctly. For zero the loop includes sum 0, and `dp[0]+=dp[0]` doubles its old count once per zero.
+- Earlier full implementation remains guided. No new independent full Target Sum method, delayed recall, compilation, execution or platform acceptance was established here.
+
+### Coin Change II (LC 518): transfer, traces and assistance
+
+- Learner independently supplied `dp[0]=1` with the empty-choice reason, chose ascending, and recognized that a coin must fit. Initial state wording used “subsets”; tutor refined it to combinations using processed coin types. Initial ascending justification concerned fit, not reuse.
+- Tutor showed `[2], amount=4` and explained reuse of a state updated in the same coin iteration. Learner then correctly traced `[2], amount=6` to `[1,0,1,0,1,0,1]` and explained reuse at sums 4 and 6. Correct transfer trace after a worked example, not independent discovery of the recurrence.
+- Tutor supplied coin-outer/sum-ascending structure before the next trace. Learner correctly gave `[1,0,0,0] -> [1,1,1,1] -> [1,1,2,2]` for `[1,2], amount=3`, answer 2, without corrections to that trace.
+- Combination/permutation reasoning was directionally correct but needed explanation: fixed coin-processing order constructs each combination once. With sum outermost, adding 1 to the `[2]` construction and adding 2 to `[1]` creates `[2,1]` and `[1,2]` separately. This refinement was tutor-supplied; no later independent explanation after that final refinement is visible.
+- Full C# method below was written by the learner without new code-structure hints after the teaching/traces. Core allocation, base, coin-outer loop, ascending inclusive bound, transition and return were algorithmically correct by chat inspection. This is same-session implementation evidence after conceptual assistance, not a wholly cold H0 solve or delayed mastery. Closed-notes compliance was requested, not independently verified.
+
+### Learner's C# code attempt and complexity correction
+
+Method body as submitted (the two additional unmatched closing braces after the complexity lines are omitted from this note; they were flagged in chat as possible paste noise and a compile error if no matching scope exists):
+
+```csharp
+public int FindCombinations(int[] coins, int amount)
+{
+    int[] dp = new int[amount + 1];
+    dp[0] = 1;
+    foreach (int coin in coins)
+    {
+        for (int currentSum = coin; currentSum <= amount; currentSum++)
+        {
+            dp[currentSum] = dp[currentSum] + dp[currentSum - coin];
+        }
+    }
+    return dp[amount];
+}
+```
+
+- Learner's time answer `O(N*A)` was correct (N coin types, A amount).
+- Learner's space answer `O(N)` was corrected by the tutor to `O(A)` because `new int[amount+1]` allocates A+1 cells, independent of the number of coin types. Exact allocation-based notation is `O(A+1)` including amount zero.
+- Code was reviewed in chat only; it was not compiled, run or LeetCode-acceptance verified. Saving this excerpt as notes is not saving or testing a solution source file.
+- Current stopping point: Coin Change II can close for this session; delayed independent recall, allocation-based complexity explanation and unfamiliar transfer still need assessment. No mastery-score or solved-count increase inferred.
+
+### Exact next task and later checks
+
+Next DSA task: select and present a problem with a different DP structure, then take a meaningful independent attempt before giving a solution. The referenced chat did not name a specific next problem; selection is still pending. Do not repeat the completed Target Sum trace or assign another near-identical counting exercise. URL Shortener remains queued on the parallel System Design track: ask for the two core user actions and unknown-link behavior, then derive request flow, APIs and storage. Its requirements attempt is still unanswered.
+
+Later spaced recall: Target Sum 1D state/guards/zeros/full method and Coin Change II ascending-versus-descending, combinations-versus-permutations and space complexity. No automatic reminder or fixed study duration inferred.
+
 ## Latest Sessions — 2026-10-08 through 2026-10-11
 
 Recorded Oct 11, 18:06 IST from conversation evidence. No active solve time measured; gaps between messages are not continuous study. Earlier October 7 stopping points below are historical, not the next task.
@@ -38,7 +454,7 @@ Recorded Oct 11, 18:06 IST from conversation evidence. No active solve time meas
 
 ### Handoff and verification status
 
-- Current next task is System Design: URL Shortener. Ask for the two core user actions and unknown-link behavior. Requirements first, then request flow, API, data model and justified tradeoffs. User has not answered yet; no design readiness inference.
+- Earlier 18:06 handoff (superseded for the immediate DSA step above): System Design: URL Shortener was queued. Ask for the two core user actions and unknown-link behavior. Requirements first, then request flow, API, data model and justified tradeoffs. User has not answered yet; no design readiness inference.
 - Later spaced review: independent Target Sum 1D method, count-state wording, zero cases, parity/range checks, derive bounds. Do not repeat the entire same lesson immediately.
 - Prior artifacts were stale through Oct 7; this update reconciles the conversation honestly. Target Sum 2D/1D and LIS optimized methods are not yet saved as source in the repository. Existing LIS source is the O(n²) version. Source saving and focused runtime verification remain pending; no platform acceptance claimed.
 - Explicit preference: show how an if guard becomes a loop boundary, explain choices before templates. Fewer tiny leading questions; longer independent attempts; concrete tables when confused. No shame, hiring guarantees, or assumed continuous study time.
