@@ -36,4 +36,54 @@ public class MinimumPathSum
 
         return dp[rows - 1, cols - 1];
     }
+
+    // 1D, O(cols) space — 2026-10-24 daytime, closed notes.
+    // His own idea: treat a missing neighbour as int.MaxValue so Math.Min ignores it —
+    // filling dp with MaxValue makes row 0 need no special loop (top = "infinity").
+    // He found the overflow cell himself: (0,0), where top AND left are both MaxValue.
+    // Bug fixed after one hint: dp[0] = grid[0][0] was written BEFORE Array.Fill, so Fill erased it.
+    // Compiled + ran the same 4 tests (7, 12, 5, 6) — all correct.
+    // Before update: dp[j] = old TOP (row i-1), dp[j-1] = new LEFT (row i).
+    public int MinPathSum1D(int[][] grid)
+    {
+        int cols = grid[0].Length;
+        int[] dp = new int[cols];
+        Array.Fill(dp, int.MaxValue);
+        dp[0] = grid[0][0];
+
+        for (int i = 0; i < grid.Length; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (i == 0 && j == 0) continue;            // MaxValue + grid would overflow
+                if (j == 0) dp[j] = grid[i][j] + dp[j];    // first column: only from top
+                else dp[j] = grid[i][j] + Math.Min(dp[j], dp[j - 1]);
+            }
+        }
+        return dp[cols - 1];
+    }
+
+    // Top-down — 2026-10-24 daytime. State/recurrence/base cases given unaided:
+    // Solve(i,j) = min sum from (i,j) to bottom-right; top call Solve(0,0).
+    // Off-grid -> int.MaxValue so Math.Min never picks it. Destination is the only cell
+    // where BOTH calls would be off-grid, so its base case must come before the recursion.
+    // Bug found by running: memo was a class field, so a 2nd grid on the same object reused
+    // the 1st grid's (0,0) answer (12 -> 7). Fix: memo is local per call.
+    // Time O(rows*cols); space O(rows*cols) memo + O(rows+cols) recursion stack.
+    public int MinPathSumTopDown(int[][] grid)
+    {
+        var memo = new Dictionary<(int, int), int>();
+        return Solve(0, 0, grid, memo);
+    }
+
+    private int Solve(int i, int j, int[][] grid, Dictionary<(int, int), int> memo)
+    {
+        if (i == grid.Length - 1 && j == grid[0].Length - 1) return grid[i][j];
+        if (i > grid.Length - 1 || j > grid[0].Length - 1) return int.MaxValue;
+
+        if (memo.ContainsKey((i, j))) return memo[(i, j)];
+        int answer = grid[i][j] + Math.Min(Solve(i + 1, j, grid, memo), Solve(i, j + 1, grid, memo));
+        memo[(i, j)] = answer;
+        return answer;
+    }
 }
